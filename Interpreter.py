@@ -9,7 +9,8 @@ def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
                    "print", "exit", "let:", "input", "type", "if", "isequal", "isgreater", "islesser",
-                   "join", "remove", "substring", "shuffle", "slice", "not", "and", "or"]
+                   "join", "remove", "substring", "shuffle", "slice", "not", "and", "or",
+                   "add"]
     keyword_list = []
     Variable_list = []
     Variable_dict = {}
@@ -326,6 +327,16 @@ def function_slice() -> str:
     check_for_kword(")")
     return value_1[int(start):int(end):int(step)]
 
+
+def function_add() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    return str(int(value_1) + int(value_2))
+
 def function_if() -> None:
     global Keyword_list, index
     
@@ -493,6 +504,10 @@ def function_parser() -> object:
         return function_shuffle()
     elif keyword_list[index] == "slice":
         return function_slice()
+
+    # Arithmetic functions
+    elif Keyword_list[index] == "add":
+        return function_add()
 
     # Other functions
     elif Keyword_list[index] == "print":
