@@ -8,9 +8,10 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, con
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
-                   "print", "exit", "let:", "input", "type", "if", "isequal", "isgreater", "islesser",
+                   "print", "exit", "let:", "input", "type", "int", "str", "bool",
+                   "if", "while", "isequal", "isgreater", "islesser",
                    "join", "remove", "substring", "shuffle", "slice", "not", "and", "or",
-                   "add"]
+                   "add", "subtr", "multi", "divi", "exp", "mod"]
     keyword_list = []
     Variable_list = []
     Variable_dict = {}
@@ -19,15 +20,15 @@ def config_stuff() -> None:
     
     try:
         config_f = open("config.json", "r")
+        config_file = config_f.read()
+        config_f.close()
     except FileNotFoundError:
         print("""Config file not found.
 Please create a file named \"config.json\", and put it in the \"Ether interpreter\" directory.
-{"Debug":1, "File_picker":0, "Default_file":"Program.etr", "Announce_comments":1}
+{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}
 should be inside the file.""")
-        exit(1)
+        config_file = '{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
 
-    config_file = config_f.read()
-    config_f.close()
     config_file = json.loads(config_file)
     if config_file["Debug"] == 1:
         print(f"--- Config file contents: ---\n{config_file}")
@@ -337,6 +338,7 @@ def function_add() -> str:
     check_for_kword(")")
     return str(int(value_1) + int(value_2))
 
+
 def function_if() -> None:
     global Keyword_list, index
     
@@ -354,8 +356,37 @@ def function_if() -> None:
         while Keyword_list[index] != "}":
             index += 1
     
+
+def function_while() -> None:
+    global Keyword_list, index
+    
+    check_for_kword("(")
+    condition_index = int(index)
+    value_1 = value_parser(string=False, integer=False, boolean=True)[0]
+    check_for_kword(")")
+    check_for_kword(":")
+    skip_kword_if_present(" ")
+    if value_1 == "True":
+        check_for_kword("{")
+        while True:
+            while Keyword_list[index] != "}":
+                index += 1
+                function_parser()
+            index = int(condition_index)
+            value_1 = value_parser(string=False, integer=False, boolean=True)[0]
+            if value_1 == "True":
+                pass
+            else:
+                break
+
+    else:
+        while Keyword_list[index] != "}":
+            index += 1
+
+
 def function_isequal() -> str:
     check_for_kword("(")
+
     value_1 = value_parser(string=True, integer=True, boolean=True)[0]
     check_for_kword(",")
     skip_kword_if_present(" ")
@@ -486,6 +517,8 @@ def function_parser() -> object:
     # Logic functions
     elif keyword_list[index] == "if":
         function_if()
+    elif keyword_list[index] == "while":
+        function_while()
     
     # Boolean functions
     elif Keyword_list[index] == "not":
