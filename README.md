@@ -101,6 +101,12 @@ my own programming language!! :D
 * x & y = values of type boolean.
 * Spaces are optional
 
+## Arithmetic functions
+### add(x, y)
+* Adds X & Y, and returns the result.
+* X & Y = values of type integer.
+* Spaces are optional.
+
 ## Conditionals
 ### If(x): {}
 * If X is true, code inside the brackets gets ran.
