@@ -9,7 +9,7 @@ def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
                    "print", "exit", "let:", "input", "type", "int", "str", "bool",
-                   "if", "while", "isequal", "isgreater", "islesser",
+                   "if", "while", "for", "isequal", "isgreater", "islesser",
                    "join", "remove", "substring", "shuffle", "slice", "not", "and", "or",
                    "add", "subtr", "multi", "divi", "exp", "mod"]
     keyword_list = []
@@ -383,6 +383,26 @@ def function_while() -> None:
         while Keyword_list[index] != "}":
             index += 1
 
+
+def function_for() -> None:
+    global Keyword_list, index
+    
+    check_for_kword("(")
+    value_1 = int(value_parser(string=False, integer=True, boolean=False)[0])
+    check_for_kword(")")
+    check_for_kword(":")
+    skip_kword_if_present(" ")
+    loop_index = int(index)
+    check_for_kword("{")
+    while True:
+        while Keyword_list[index] != "}":
+            index += 1
+            function_parser()
+
+        value_1 -= 1
+        if value_1 <= 0:
+            break   
+        index = int(loop_index)
 
 def function_isequal() -> str:
     check_for_kword("(")
