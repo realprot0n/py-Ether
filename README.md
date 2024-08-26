@@ -11,6 +11,7 @@ my own programming language!! :D
 * Spp is a zero-indexed language.
 * Files in the Ether format will be denoted with the file ending ".etr".
 * The Config.json file is necessary for the interpreter to function.
+* Line breaks, spaces, and tabs are not neccessary for the program to run.
 
 ## Config.json
 ### "Debug"
@@ -128,3 +129,14 @@ my own programming language!! :D
 * Returns either True or False
 * x & y = Values of either int or string
 * Spaces are optional
+
+## Loops
+### While(x): {}
+* While X is true, repeat the code inside the loop.
+* If X is false, the loop will end when the closing bracket is reached.
+* Condition checks are only made when the closing bracket is reached.
+* If X is false on the first check, no code inside the brackets will be ran.
+* X = A value of type boolean.
+* **WARNING:** Using this can lead to an infinite loop, only able to be broken out of with KeyboardInterrupt.
+* Spaces are optional.
+* Line breaks are possible inside the brackets.
