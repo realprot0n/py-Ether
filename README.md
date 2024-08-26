@@ -1,10 +1,6 @@
 # Ether Documentation
 my own programming language!! :D
 
-(I'm just going to copy & paste my Obsidian docs into this file)
-
-
-
 ## Common formatting / Notes
 * Functions, such as `print(n)`, will have parenthesis around arguments.
 * Functions can be nested nearly infinitely.
