@@ -17,7 +17,7 @@ my own programming language!! :D
 ### "Debug"
 * Enables multiple functionalities meant for debugging purposes.
 * If the value of "Debug" is set to 1, the interpreter does the following:
-	* Prints the whole [[Config.json]] file to the console upon loading it.
+	* Prints the whole Config.json file to the console upon loading it.
 	* Prints the program file's contents to the console upon loading.
 	* Prints the length of the file to the console.
 	* Denotes when no errors occurred while parsing the file.
