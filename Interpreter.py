@@ -7,8 +7,8 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, con
 
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
-    Keyword_key = ["(", ")", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
-                   "print", "exit", "let:", "input", "type", "isequal", "isgreater", "islesser",
+    Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
+                   "print", "exit", "let:", "input", "type", "if", "isequal", "isgreater", "islesser",
                    "join", "remove", "substring", "shuffle", "slice", "not", "and", "or"]
     keyword_list = []
     Variable_list = []
@@ -21,7 +21,7 @@ def config_stuff() -> None:
     except FileNotFoundError:
         print("""Config file not found.
 Please create a file named \"config.json\", and put it in the \"Ether interpreter\" directory.
-{"Debug":1, "File_picker":0, "Default_file":"Program.spp", "Announce_comments":1}
+{"Debug":1, "File_picker":0, "Default_file":"Program.etr", "Announce_comments":1}
 should be inside the file.""")
         exit(1)
 
@@ -151,7 +151,7 @@ def keyword_parser(f: str) -> list:
             return keyword_list
 
 
-##################################
+###############################################################
 
 
 class Var:
@@ -170,6 +170,7 @@ class Var:
 
 def check_for_kword(value: str) -> None:
     global index
+    
     index += 1
     if Keyword_list[index] == value:
         return
@@ -190,7 +191,7 @@ def skip_kword_if_present(value: str) -> None:
 
 def value_parser(string: bool = False,
                  integer: bool = False,
-                 boolean: bool = False) -> tuple:
+                 boolean: bool = False) -> tuple[str, str]:
     '''
     The return tuple is formatted like this:
     (Value, Type)
@@ -325,7 +326,23 @@ def function_slice() -> str:
     check_for_kword(")")
     return value_1[int(start):int(end):int(step)]
 
-
+def function_if() -> None:
+    global Keyword_list, index
+    
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=False, boolean=True)[0]
+    check_for_kword(")")
+    check_for_kword(":")
+    skip_kword_if_present(" ")
+    if value_1 == "True":
+        check_for_kword("{")
+        while Keyword_list[index] != "}":
+            index += 1
+            function_parser()
+    else:
+        while Keyword_list[index] != "}":
+            index += 1
+    
 def function_isequal() -> str:
     check_for_kword("(")
     value_1 = value_parser(string=True, integer=True, boolean=True)[0]
@@ -454,6 +471,10 @@ def function_parser() -> object:
         return function_isgreater()
     elif Keyword_list[index] == "islesser":
         return function_islesser()
+    
+    # Logic functions
+    elif keyword_list[index] == "if":
+        function_if()
     
     # Boolean functions
     elif Keyword_list[index] == "not":
