@@ -88,7 +88,25 @@ my own programming language!! :D
 * Y & X = Values of type string.
 * Spaces are optional
 
+## Boolean functions
+### Not(x)
+* Inverts the input & returns the result.
+* x = a value of type boolean.
+### And(x, y)
+* Returns the && of x & y.
+* x & y = values of type boolean.
+* Spaces are optional
+### Or(x, y)
+* Returns the || of x & y.
+* x & y = values of type boolean.
+* Spaces are optional
+
 ## Conditionals
+### If(x): {}
+* If X is true, code inside the brackets gets ran.
+* Otherwise, skip to the closing bracket.
+* Spaces are optional
+* Line breaks are possible inside the brackets.
 ### Isequal(x, y)
 * Checks if both values are equal
 * Returns either True or False.
