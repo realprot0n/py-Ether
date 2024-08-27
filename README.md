@@ -133,6 +133,11 @@ my own programming language!! :D
 * Condition checks are only made when the closing bracket is reached.
 * If X is false on the first check, no code inside the brackets will be ran.
 * X = A value of type boolean.
-* **WARNING:** Using this can lead to an infinite loop, only able to be broken out of with KeyboardInterrupt.
+* **WARNING:** Using this can lead to an infinite loop, only able to be broken out of with KeyboardInterrupt (Ctrl + C).
+* Spaces are optional.
+* Line breaks are possible inside the brackets.
+### Fornumb(x): {}
+* Repeats code inside the brackets X amount of times
+* X = a value of type integer
 * Spaces are optional.
 * Line breaks are possible inside the brackets.
