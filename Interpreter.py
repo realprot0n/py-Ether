@@ -9,7 +9,7 @@ def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
                    "print", "exit", "let:", "input", "type", "int", "str", "bool",
-                   "if", "while", "for", "isequal", "isgreater", "islesser",
+                   "if", "while", "fornumb", "isequal", "isgreater", "islesser",
                    "join", "remove", "substring", "shuffle", "slice", "not", "and", "or",
                    "add", "subtr", "multi", "divi", "exp", "mod"]
     keyword_list = []
@@ -24,9 +24,10 @@ def config_stuff() -> None:
         config_f.close()
     except FileNotFoundError:
         print("""Config file not found.
-Please create a file named \"config.json\", and put it in the \"Ether interpreter\" directory.
+Please create a file named "config.json", and put it in the "Ether interpreter" directory.
 {"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}
-should be inside the file.""")
+should be inside the file.
+Using a default config file.""")
         config_file = '{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
 
     config_file = json.loads(config_file)
@@ -146,7 +147,7 @@ def keyword_parser(f: str) -> list:
 
         if len(file) <= i + 1:
             if temp_val != "":
-                print(f'---Mistyped kword(s), expect errors.---\n(\n{temp_val}\n)')
+                print(f'---Mistyped kword(s), expect errors.---\n{temp_val}\n')
             else:
                 if config_file["Debug"] == 1:
                     print("---No errors while compiling---")
@@ -260,6 +261,23 @@ def variable_reassignment(var_name) -> None:
     value_1 = value_parser(string=True, integer=True, boolean=True)
     check_for_kword(";")
     Variable_dict[var_name] = value_1
+
+
+def function_int() -> str:
+    check_for_kword("(")
+    value = value_parser(string=True, integer=True, boolean=True)
+    check_for_kword(")")
+    if value[1] == "Boolean":
+        if value[0] == "True":
+            return "1"
+        else:
+            return "0"
+    elif value[1] == "String":
+        if value[0].isnumeric():
+            return value[0]
+    elif value[1] == "Integer":
+        return value[0]
+        
 
 
 def function_print() -> None:
@@ -384,7 +402,7 @@ def function_while() -> None:
             index += 1
 
 
-def function_for() -> None:
+def function_fornumb() -> None:
     global Keyword_list, index
     
     check_for_kword("(")
@@ -525,6 +543,8 @@ def function_parser() -> object:
         return function_type()
     elif keyword_list[index] == "input":
         return function_input()
+    elif keyword_list[index] == "int":
+        return function_int()
     
     # Comparison functions
     elif Keyword_list[index] == "isequal":
@@ -539,6 +559,8 @@ def function_parser() -> object:
         function_if()
     elif keyword_list[index] == "while":
         function_while()
+    elif keyword_list[index] == "fornumb":
+        function_fornumb()
     
     # Boolean functions
     elif Keyword_list[index] == "not":
