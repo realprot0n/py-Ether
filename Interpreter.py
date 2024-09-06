@@ -1,5 +1,7 @@
 import json
 import random
+from time import sleep
+from math import pow
 from tkinter import filedialog as fd
 
 global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
@@ -12,7 +14,8 @@ def config_stuff() -> None:
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
                    "not", "and", "or", "xor", # boolean stuf
-                   "add", "subtr", "multi", "divi", "pow", "mod"] # arethmetic stuf
+                   "add", "subtr", "multi", "divi", "pow", "mod", # arethmetic stuf
+                   "sleep"]
     keyword_list = []
     Variable_list = []
     Variable_dict = {}
@@ -425,7 +428,7 @@ def function_pow() -> str:
     skip_kword_if_present(" ")
     value_2 = value_parser(string=False, integer=True, boolean=False)[0]
     check_for_kword(")")
-    return str(int(value_1) ** int(value_2))
+    return str(int(pow(int(value_1), int(value_2))))
 
 
 def function_mod() -> str:
@@ -629,79 +632,55 @@ def function_parser() -> object:
     If a function doesn't have return in front of it, it simply doesnt have a return value.
     """
     
+    function_dict = {
+    "let:": function_let,
+    "type": function_type,
+    "input": function_input,
+    "int": function_int,
+    "string": function_string,
+    "boolean": function_boolean,
+
+    # Comparison functions
+    "isequal": function_isequal,
+    "isgreater": function_isgreater,
+    "islesser": function_islesser,
+    "if": function_if,
+
+    # Loop functions
+    "while": function_while,
+    "fornumb": function_fornumb,
+    
+    # Boolean functions
+    "not": function_not,
+    "and": function_and,
+    "or": function_or,
+    "xor": function_xor,
+
+    # String functions
+    "join": function_join,
+    "remove": functions_remove,
+    "shuffle": function_shuffle,
+    "slice": function_slice,
+
+    # arithmetic functions
+    "add": function_add,
+    "subtr": function_subtr,
+    "multi": function_multi,
+    "divi": function_divi,
+    "mod": function_mod,
+    "pow": function_pow,
+
+    #other funcs
+    "print": function_print,
+    "exit": exit_program
+    }
     keyword = keyword_list[index]
     
     # Variable functions
     if keyword in Variable_list:
         variable_stuff()
-    elif keyword == "let:":
-        function_let()
-    elif keyword == "type":
-        return function_type()
-    elif keyword == "input":
-        return function_input()
-    elif keyword == "int":
-        return function_int()
-    elif keyword == "string":
-        return function_string()
-    elif keyword == "boolean":
-        return function_boolean()
-    
-    # Comparison functions
-    elif keyword == "isequal":
-        return function_isequal()
-    elif keyword == "isgreater":
-        return function_isgreater()
-    elif keyword == "islesser":
-        return function_islesser()
-    elif keyword == "if":
-        function_if()
-    
-    # Loop functions
-    elif keyword == "while":
-        function_while()
-    elif keyword == "fornumb":
-        function_fornumb()
-    
-    # Boolean functions
-    elif keyword == "not":
-        return function_not()
-    elif keyword == "and":
-        return function_and()
-    elif keyword == "or":
-        return function_or()
-    elif keyword == "xor":
-        return function_xor()
-    
-    # String functions
-    elif keyword == "join":
-        return function_join()
-    elif keyword == "remove":
-        return functions_remove()
-    elif keyword == "shuffle":
-        return function_shuffle()
-    elif keyword == "slice":
-        return function_slice()
-
-    # Arithmetic functions
-    elif keyword == "add":
-        return function_add()
-    elif keyword == "subtr":
-        return function_subtr()
-    elif keyword == "multi":
-        return function_multi()
-    elif keyword == "divi":
-        return function_divi()
-    elif keyword == "pow":
-        return function_pow()
-    elif keyword == "mod":
-        return function_mod()
-
-    # Other functions
-    elif keyword == "print":
-        function_print()
-    elif keyword == "exit":
-        exit_program()
+    elif keyword in function_dict:
+        return function_dict[keyword]()
 
 
 def run_program() -> None:
