@@ -7,11 +7,12 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, con
 
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
-    Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
-                   "print", "exit", "let:", "input", "type", "int", "string", "boolean",
-                   "if", "while", "fornumb", "isequal", "isgreater", "islesser",
-                   "join", "remove", "substring", "shuffle", "slice", "not", "and", "or",
-                   "add", "subtr", "multi", "divi", "pow", "mod"]
+    Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
+                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", # variable stuf / other stuf
+                   "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
+                   "join", "remove", "substring", "shuffle", "slice", # string stuf
+                   "not", "and", "or", "xor", # boolean stuf
+                   "add", "subtr", "multi", "divi", "pow", "mod"] # arethmetic stuf
     keyword_list = []
     Variable_list = []
     Variable_dict = {}
@@ -416,6 +417,27 @@ def function_divi() -> str:
     check_for_kword(")")
     return str(int(value_1) / int(value_2))
 
+
+def function_pow() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    return str(int(value_1) ** int(value_2))
+
+
+def function_mod() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    return str(int(value_1) % int(value_2))
+
+
 def function_if() -> None:
     global Keyword_list, index
     
@@ -439,19 +461,19 @@ def function_while() -> None:
     
     check_for_kword("(")
     condition_index = int(index)
-    value_1 = value_parser(string=False, integer=False, boolean=True)[0]
+    condition = value_parser(string=False, integer=False, boolean=True)[0]
     check_for_kword(")")
     check_for_kword(":")
     skip_kword_if_present(" ")
-    if value_1 == "True":
+    if condition == "True":
         check_for_kword("{")
         while True:
             while Keyword_list[index] != "}":
                 index += 1
                 function_parser()
             index = int(condition_index)
-            value_1 = value_parser(string=False, integer=False, boolean=True)[0]
-            if value_1 == "True":
+            condition = value_parser(string=False, integer=False, boolean=True)[0]
+            if condition == "True":
                 pass
             else:
                 break
@@ -465,11 +487,11 @@ def function_fornumb() -> None:
     global Keyword_list, index
     
     check_for_kword("(")
-    value_1 = int(value_parser(string=False, integer=True, boolean=False)[0])
+    value_1: int = int(value_parser(string=False, integer=True, boolean=False)[0])
     check_for_kword(")")
     check_for_kword(":")
     skip_kword_if_present(" ")
-    loop_index = int(index)
+    loop_index: int = index
     check_for_kword("{")
     while True:
         while Keyword_list[index] != "}":
@@ -479,11 +501,10 @@ def function_fornumb() -> None:
         value_1 -= 1
         if value_1 <= 0:
             break   
-        index = int(loop_index)
+        index = loop_index
 
-def function_isequal() -> str:
+def function_isequal() -> tuple[str, str]:
     check_for_kword("(")
-
     value_1 = value_parser(string=True, integer=True, boolean=True)[0]
     check_for_kword(",")
     skip_kword_if_present(" ")
@@ -520,11 +541,11 @@ def function_islesser() -> str:
 
 def function_not() -> str:
     check_for_kword("(")
-    value_1 = value_parser(string=False, integer=False, boolean=True)[0]
+    value = value_parser(string=False, integer=False, boolean=True)[0]
     check_for_kword(")")
-    if value_1 == "True":
+    if value == "True":
         return "False"
-    elif value_1 == "False":
+    elif value == "False":
         return "True"
 
 
@@ -556,6 +577,21 @@ def function_or() -> str:
     else:
         return "False"
 
+
+def function_xor() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+
+    # XOR function i took from the first result on google
+    if ((value_1 == "True") and (value_2 == "False")) or ((value_1 == "False") and (value_2 == "True")):
+        return "True"
+    else:
+        return "False"
+    
 
 def function_input() -> str:
     check_for_kword("(")
@@ -618,10 +654,10 @@ def function_parser() -> object:
         return function_isgreater()
     elif keyword == "islesser":
         return function_islesser()
-    
-    # Logic functions
     elif keyword == "if":
         function_if()
+    
+    # Loop functions
     elif keyword == "while":
         function_while()
     elif keyword == "fornumb":
@@ -634,6 +670,8 @@ def function_parser() -> object:
         return function_and()
     elif keyword == "or":
         return function_or()
+    elif keyword == "xor":
+        return function_xor()
     
     # String functions
     elif keyword == "join":
@@ -650,6 +688,14 @@ def function_parser() -> object:
         return function_add()
     elif keyword == "subtr":
         return function_subtr()
+    elif keyword == "multi":
+        return function_multi()
+    elif keyword == "divi":
+        return function_divi()
+    elif keyword == "pow":
+        return function_pow()
+    elif keyword == "mod":
+        return function_mod()
 
     # Other functions
     elif keyword == "print":
