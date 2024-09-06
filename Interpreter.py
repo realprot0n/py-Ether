@@ -8,10 +8,10 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, con
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False",
-                   "print", "exit", "let:", "input", "type", "int", "str", "bool",
+                   "print", "exit", "let:", "input", "type", "int", "string", "boolean",
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser",
                    "join", "remove", "substring", "shuffle", "slice", "not", "and", "or",
-                   "add", "subtr", "multi", "divi", "exp", "mod"]
+                   "add", "subtr", "multi", "divi", "pow", "mod"]
     keyword_list = []
     Variable_list = []
     Variable_dict = {}
@@ -221,6 +221,8 @@ def value_parser(string: bool = False,
     
     function_ret = function_parser()
     if function_ret is not None:
+        if type(function_ret) == tuple:
+            return function_ret
         if function_ret.isnumeric() & integer:
             return (function_ret, "Integer")
         elif (function_ret == "True" or function_ret == "False") & boolean:
@@ -263,22 +265,50 @@ def variable_reassignment(var_name) -> None:
     Variable_dict[var_name] = value_1
 
 
-def function_int() -> str:
+def function_int() -> tuple[str, str]:
     check_for_kword("(")
-    value = value_parser(string=True, integer=True, boolean=True)
+    value, val_type = value_parser(string=True, integer=True, boolean=True)
     check_for_kword(")")
-    if value[1] == "Boolean":
-        if value[0] == "True":
-            return "1"
+    if val_type == "Boolean":
+        if value == "True":
+            return ("1", "Integer")
         else:
-            return "0"
-    elif value[1] == "String":
-        if value[0].isnumeric():
-            return value[0]
-    elif value[1] == "Integer":
-        return value[0]
-        
+            return ("0", "Integer")
+    elif val_type == "String":
+        if value.isnumeric():
+            return (value[0], "Integer")
+        else:
+            raise ValueError
+    elif val_type == "Integer":
+        return (value[0], "Integer")
 
+
+
+def function_string() -> tuple[str, str]:
+    check_for_kword("(")
+    value = value_parser(string=True, integer=True, boolean=True)[0]
+    check_for_kword(")")
+    
+    return (value, "String")
+
+
+def function_boolean() -> tuple[str, str]:
+    check_for_kword("(")
+    value, val_type = value_parser(string=True, integer=True, boolean=True)
+    check_for_kword(")")
+    
+    if val_type == "Boolean":
+        return (value, "Boolean")
+    elif val_type == "Integer":
+        if int(value) == 0:
+            return ("False", "Boolean")
+        else:
+            return ("True", "Boolean")
+    elif val_type == "String":
+        if value != "":
+            return ("True", "Boolean")
+        else:
+            return ("False", "Boolean")
 
 def function_print() -> None:
     check_for_kword("(")
@@ -356,6 +386,35 @@ def function_add() -> str:
     check_for_kword(")")
     return str(int(value_1) + int(value_2))
 
+
+def function_subtr() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    return str(int(value_1) - int(value_2))
+
+
+def function_multi() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    return str(int(value_1) * int(value_2))
+
+
+def function_divi() -> str:
+    check_for_kword("(")
+    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    return str(int(value_1) / int(value_2))
 
 def function_if() -> None:
     global Keyword_list, index
@@ -534,60 +593,68 @@ def function_parser() -> object:
     If a function doesn't have return in front of it, it simply doesnt have a return value.
     """
     
+    keyword = keyword_list[index]
+    
     # Variable functions
-    if Keyword_list[index] in Variable_list:
+    if keyword in Variable_list:
         variable_stuff()
-    elif Keyword_list[index] == "let:":
+    elif keyword == "let:":
         function_let()
-    elif keyword_list[index] == "type":
+    elif keyword == "type":
         return function_type()
-    elif keyword_list[index] == "input":
+    elif keyword == "input":
         return function_input()
-    elif keyword_list[index] == "int":
+    elif keyword == "int":
         return function_int()
+    elif keyword == "string":
+        return function_string()
+    elif keyword == "boolean":
+        return function_boolean()
     
     # Comparison functions
-    elif Keyword_list[index] == "isequal":
+    elif keyword == "isequal":
         return function_isequal()
-    elif Keyword_list[index] == "isgreater":
+    elif keyword == "isgreater":
         return function_isgreater()
-    elif Keyword_list[index] == "islesser":
+    elif keyword == "islesser":
         return function_islesser()
     
     # Logic functions
-    elif keyword_list[index] == "if":
+    elif keyword == "if":
         function_if()
-    elif keyword_list[index] == "while":
+    elif keyword == "while":
         function_while()
-    elif keyword_list[index] == "fornumb":
+    elif keyword == "fornumb":
         function_fornumb()
     
     # Boolean functions
-    elif Keyword_list[index] == "not":
+    elif keyword == "not":
         return function_not()
-    elif Keyword_list[index] == "and":
+    elif keyword == "and":
         return function_and()
-    elif Keyword_list[index] == "or":
+    elif keyword == "or":
         return function_or()
     
     # String functions
-    elif Keyword_list[index] == "join":
+    elif keyword == "join":
         return function_join()
-    elif Keyword_list[index] == "remove":
+    elif keyword == "remove":
         return functions_remove()
-    elif Keyword_list[index] == "shuffle":
+    elif keyword == "shuffle":
         return function_shuffle()
-    elif keyword_list[index] == "slice":
+    elif keyword == "slice":
         return function_slice()
 
     # Arithmetic functions
-    elif Keyword_list[index] == "add":
+    elif keyword == "add":
         return function_add()
+    elif keyword == "subtr":
+        return function_subtr()
 
     # Other functions
-    elif Keyword_list[index] == "print":
+    elif keyword == "print":
         function_print()
-    elif Keyword_list[index] == "exit":
+    elif keyword == "exit":
         exit_program()
 
 
