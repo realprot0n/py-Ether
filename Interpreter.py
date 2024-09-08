@@ -1,5 +1,5 @@
 import json
-import random
+from random import sample
 from time import sleep
 from math import pow
 from tkinter import filedialog as fd
@@ -11,11 +11,12 @@ def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
                    "print", "exit", "let:", "input", "type", "int", "string", "boolean", # variable stuf / other stuf
+                   "function", "->", # function stuf
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
                    "not", "and", "or", "xor", # boolean stuf
                    "add", "subtr", "multi", "divi", "pow", "mod", # arethmetic stuf
-                   "sleep"]
+                   "sleep"] # python modules
     keyword_list = []
     Variable_list = []
     Variable_dict = {}
@@ -28,7 +29,7 @@ def config_stuff() -> None:
         config_f.close()
     except FileNotFoundError:
         print("""Config file not found.
-Please create a file named "config.json", and put it in the "Ether interpreter" directory.
+Please create a file named "config.json" in the "Ether interpreter" directory.
 {"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}
 should be inside the file.
 Using a default config file.""")
@@ -362,7 +363,7 @@ def function_shuffle() -> str:
     check_for_kword("(")
     value_1 = value_parser(string=True, integer=True, boolean=True)[0]
     check_for_kword(")")
-    return "".join(random.sample(value_1, len(value_1)))
+    return "".join(sample(value_1, len(value_1)))
 
 
 def function_slice() -> str:
@@ -487,13 +488,20 @@ def function_while() -> None:
 
 
 def function_fornumb() -> None:
-    global Keyword_list, index
+    global Keyword_list, index, Variable_list
     
     check_for_kword("(")
-    value_1: int = int(value_parser(string=False, integer=True, boolean=False)[0])
+    iteration_amount: int = int(value_parser(string=False, integer=True, boolean=False)[0])
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    var_name: str = value_parser(string=True, integer=False, boolean=False)[0]
     check_for_kword(")")
     check_for_kword(":")
     skip_kword_if_present(" ")
+    
+    Variable_dict[var_name] = ("0", "Integer")
+    
+    current_iterations = 0
     loop_index: int = index
     check_for_kword("{")
     while True:
@@ -501,8 +509,9 @@ def function_fornumb() -> None:
             index += 1
             function_parser()
 
-        value_1 -= 1
-        if value_1 <= 0:
+        current_iterations += 1
+        Variable_dict[var_name] = (str(current_iterations), "Integer")
+        if iteration_amount <= current_iterations:
             break   
         index = loop_index
 
@@ -540,6 +549,13 @@ def function_islesser() -> str:
         return "True" if int(value_1) < int(value_2) else "False"
     except ValueError:
         return "True" if value_1 < value_2 else "False"
+    
+
+def function_sleep() -> None:
+    check_for_kword("(")
+    value = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    sleep(int(value))
 
 
 def function_not() -> str:
@@ -583,10 +599,10 @@ def function_or() -> str:
 
 def function_xor() -> str:
     check_for_kword("(")
-    value_1 = value_parser(string=False, integer=True, boolean=False)[0]
+    value_1 = value_parser(string=False, integer=False, boolean=True)[0]
     check_for_kword(",")
     skip_kword_if_present(" ")
-    value_2 = value_parser(string=False, integer=True, boolean=False)[0]
+    value_2 = value_parser(string=False, integer=False, boolean=True)[0]
     check_for_kword(")")
 
     # XOR function i took from the first result on google
@@ -669,11 +685,15 @@ def function_parser() -> object:
     "divi": function_divi,
     "mod": function_mod,
     "pow": function_pow,
+    
+    # python module stuf
+    "sleep": function_sleep,
 
     #other funcs
     "print": function_print,
     "exit": exit_program
     }
+    
     keyword = keyword_list[index]
     
     # Variable functions
