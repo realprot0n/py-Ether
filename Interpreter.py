@@ -10,8 +10,8 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_lis
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
-                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", # variable stuf / other stuf
-                   "function", "->", # function stuf
+                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", "None",# variable stuf / other stuf
+                   "define", "->", # function stuf
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
                    "not", "and", "or", "xor", # boolean stuf
@@ -22,8 +22,8 @@ def config_stuff() -> None:
     Variable_list = []
     Variable_dict = {}
     
-    Function_list = []
-    Function_dict = {}
+    Def_function_list = []
+    Def_function_dict = {}
     
     temp_val = ""
     i = -1
@@ -120,7 +120,7 @@ def keyword_parser(f: str) -> list:
                 i += 1
 
         # Defining functions
-        if temp_val == "function":
+        if temp_val == "define":
             keyword_list.append(temp_val)
             temp_val = ""
 
@@ -134,12 +134,15 @@ def keyword_parser(f: str) -> list:
 
             keyword_list.append(temp_val)
             Def_function_list.append(temp_val)
-            
+            temp_val = ""
+
         # Comments
         if temp_val == "#":
             # Since python automatically skips every other check in an or statement when the first one is true,
             # putting the end of file check first removes the risk of index errors when parsing for keywords.
-            while not (i+1 >= len(file) or file[i+1] == "\n" or file[i+1] == "#"):
+            while not (i+1 >= len(file)
+                       or file[i+1] == "\n"
+                       or file[i+1] == "#"):
                 i += 1
                 temp_val += file[i]
             keyword_list.append(temp_val)
@@ -311,15 +314,28 @@ def variable_reassignment(var_name) -> None:
 def function_stuff() -> None:
     ...
 
+
 def function_define_func() -> None:
     global index    
 
     check_for_kword(" ")
-    func_name = keyword_list[index]
     index += 1
+    func_name = keyword_list[index]
     check_for_kword("(")
     check_for_kword(")")
     
+    if skip_kword_if_present(" ") and skip_kword_if_present("->"):
+        skip_kword_if_present(" ")
+        index += 1
+        return_type = keyword_list[index]
+    else:
+        return_type = "None"
+    
+    check_for_kword(":")
+    skip_kword_if_present(" ")
+    
+    check_for_kword("{")
+
 
 def function_int() -> tuple[str, str]:
     check_for_kword("(")
@@ -714,6 +730,8 @@ def function_let() -> None:
 
 
 def function_parser() -> object:
+    global Def_function_list
+    
     """
     If a function doesn't have return in front of it, it simply doesnt have a return value.
     """
@@ -728,7 +746,7 @@ def function_parser() -> object:
     "boolean": function_boolean,
 
     # User defined functions
-    "define": function_define_func
+    "define": function_define_func,
     
     # Comparison functions
     "isequal": function_isequal,
@@ -774,7 +792,7 @@ def function_parser() -> object:
     if keyword in Variable_list:
         variable_stuff()
     elif keyword in Def_function_list:
-        function_stuff()
+        return function_stuff()
     elif keyword in function_dict:
         return function_dict[keyword]()
 
