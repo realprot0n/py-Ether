@@ -10,7 +10,7 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_lis
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
-                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", "None",# variable stuf / other stuf
+                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", "none",# variable stuf / other stuf
                    "define", "->", # function stuf
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
@@ -311,7 +311,7 @@ def variable_reassignment(var_name) -> None:
     Variable_dict[var_name] = value_1
 
 
-def function_stuff() -> None:
+def function_stuff() -> object:
     ...
 
 
@@ -333,9 +333,13 @@ def function_define_func() -> None:
     
     check_for_kword(":")
     skip_kword_if_present(" ")
-    
     check_for_kword("{")
 
+    func_index = index
+    Def_function_dict[func_name] = (func_index, return_type)
+
+    while keyword_list[index] != "}":
+        index += 1
 
 def function_int() -> tuple[str, str]:
     check_for_kword("(")
@@ -353,8 +357,7 @@ def function_int() -> tuple[str, str]:
         else:
             raise ValueError
     elif val_type == "Integer":
-        return (value[0], "Integer")
-
+        return (value, "Integer")
 
 
 def function_string() -> tuple[str, str]:
@@ -496,7 +499,7 @@ def function_divi() -> str:
     value_2 = value_parser(string=False, integer=True, boolean=False)[0]
     check_for_kword(")")
     
-    return str(int(value_1) / int(value_2))
+    return str(int(value_1) // int(value_2))
 
 
 def function_pow() -> str:
@@ -594,6 +597,7 @@ def function_fornumb() -> None:
         if iteration_amount <= current_iterations:
             break   
         index = loop_index
+
 
 def function_isequal() -> tuple[str, str]:
     check_for_kword("(")
