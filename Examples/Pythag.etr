@@ -1,0 +1,10 @@
+let: a = input("First side length?");
+let: b = input("Second side length?");
+
+a = pow(a, 2);
+b = pow(b, 2);
+
+let: c = add(a, b);
+c = sqrt(c);
+
+print(join("The length of C is ", c))
