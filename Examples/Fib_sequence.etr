@@ -1,0 +1,9 @@
+let: a = 0;
+let: b = 1;'
+
+while(true): {
+    c = add(a,b)
+    a = b;
+    b = c
+    print(c)
+}
