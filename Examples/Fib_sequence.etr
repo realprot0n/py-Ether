@@ -1,9 +1,12 @@
 let: a = 0;
-let: b = 1;'
+let: b = 1;
+let: c = 0;
 
-while(true): {
-    c = add(a,b)
+let: i = 0;
+fornumb(100000, "i"): {
+    c = add(a,b);
     a = b;
-    b = c
+    b = c;
+
     print(c)
 }
