@@ -15,7 +15,7 @@ def config_stuff() -> None:
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
                    "not", "and", "or", "xor", # boolean stuf
-                   "add", "subtr", "multi", "divi", "pow", "mod", # arethmetic stuf
+                   "add", "subtr", "multi", "divi", "pow", "mod", "sqrt",# arethmetic stuf
                    "sleep"] # python modules
     keyword_list = []
     
@@ -217,13 +217,13 @@ class Var:
 def check_for_kword(value: str) -> None:
     global stack
     
-    stack[len(stack)-1] += 1
-    if Keyword_list[stack[len(stack)-1]] == value:
+    increment_top_of_stack()
+    if Keyword_list[top_from_stack()] == value:
         return
     else:
-        print(f"Error: Expected '{value}' at keyword {stack[len(stack)-1]} but found \"{Keyword_list[stack[len(stack)-1]]}\"")
+        print(f"Error: Expected '{value}' at keyword {top_from_stack()} but found \"{Keyword_list[top_from_stack()]}\"")
         Err_len = config_file["Error_length"]
-        Error_keywords = "".join(Keyword_list[stack[len(stack)-1]-Err_len:stack[len(stack)-1]-1])
+        Error_keywords = "".join(Keyword_list[top_from_stack()-Err_len:top_from_stack()-1])
         print(f"Behind the error: {Error_keywords}")
         exit(1)
 
@@ -231,8 +231,8 @@ def check_for_kword(value: str) -> None:
 def skip_kword_if_present(value: str) -> bool:
     global stack
 
-    if Keyword_list[stack[len(stack)-1]+1] == value:
-        stack[len(stack)-1] += 1
+    if Keyword_list[top_from_stack()+1] == value:
+        increment_top_of_stack()
         return True
     else:
         return False
@@ -242,8 +242,26 @@ def top_from_stack() -> int:
     """
     Replaces "stack[len(stack)-1]"
     """
+    
     return stack[len(stack)-1]
 
+
+def increment_top_of_stack(number: int = 1) -> None:
+    """
+    Replaces "stack[len(stack)-1] += N"
+    """
+    
+    stack[len(stack)-1] += number
+    return
+
+
+def set_top_of_stack(number: int) -> None:
+    """
+    Replaces "stack[len(stack)-1] = N"
+    """
+    
+    stack[len(stack)-1] = number
+    
 def value_parser(string: bool = False,
                  integer: bool = False,
                  boolean: bool = False) -> tuple[str, str]:
@@ -252,8 +270,10 @@ def value_parser(string: bool = False,
     (Value, Type)
     """
     global stack
-    stack[len(stack)-1] += 1
-    keyword = keyword_list[stack[len(stack)-1]]
+    increment_top_of_stack()
+    keyword = keyword_list[top_from_stack()]
+    
+    # Variable parsing
     if keyword in Variable_list:
         var_val = Variable_dict.get(keyword)
         if (var_val[1] == "Integer") & integer:
@@ -262,16 +282,19 @@ def value_parser(string: bool = False,
             return var_val
         elif (var_val[1] == "Boolean") & boolean:
             return var_val
+
+    # Literal values
     elif keyword.isnumeric() & integer:
         return (keyword, "Integer")
     
     elif (keyword == "'" or keyword == "\"") & string:
-        stack[len(stack)-1] += 2
-        return (Keyword_list[stack[len(stack)-1] - 1], "String")
+        increment_top_of_stack(2)
+        return (Keyword_list[top_from_stack() - 1], "String")
     
     elif (keyword == "False" or keyword == "True") & boolean:
         return (keyword, "Boolean")
-    
+
+    # Function Parsing
     function_ret = function_parser()
     if function_ret is not None:
         if type(function_ret) == tuple:
@@ -282,7 +305,8 @@ def value_parser(string: bool = False,
             return (function_ret, "Boolean")
         elif string:
             return (str(function_ret), "String")
-    
+
+    # Error Handling
     if string:
         params = "string, "
     if integer:
@@ -291,29 +315,37 @@ def value_parser(string: bool = False,
         params = params + "bool, "
     if params == "":
         params = params + "none"
-    print(f"Error: Expected {params}at index {stack[len(stack)-1]}, but instead found {keyword}")
+    
+    print(f"Error: Expected {params}at index {top_from_stack()}, but instead found {keyword}")
     Err_len = config_file["Error_length"]
-    Error_keywords = "".join(Keyword_list[stack[len(stack)-1]-Err_len:stack[len(stack)-1]-1])
+    Error_keywords = "".join(Keyword_list[top_from_stack()-Err_len:top_from_stack()-1])
     print(f"Behind the error: {Error_keywords}")
     exit(1)
 
 
 def variable_stuff() -> None:
     global stack
-    var_name = keyword_list[stack[len(stack)-1]]
-    stack[len(stack)-1] += 1
+    var_name = keyword_list[top_from_stack()]
+    increment_top_of_stack()
 
-    if keyword_list[stack[len(stack)-1]+1] == "=":
-        stack[len(stack)-1] += 1
+    if keyword_list[top_from_stack()+1] == "=":
+        increment_top_of_stack()
         variable_reassignment(var_name)
-    elif keyword_list[stack[len(stack)-1]] == "=":
+    elif keyword_list[top_from_stack()] == "=":
         variable_reassignment(var_name)
+
+    elif keyword_list[top_from_stack()] == ".":
+        increment_top_of_stack()
+        if keyword_list[top_from_stack()] == "increment":
+            if Variable_dict[var_name][1] == "Integer":
+                function_increment(var_name)
+            else:
+                print("Increment function requires an integer.")
+                exit(1)
 
 
 def variable_reassignment(var_name) -> None:
-    global stack
-    
-    stack[len(stack)-1] += 1
+    increment_top_of_stack()
     skip_kword_if_present(" ")
     value_1 = value_parser(string=True, integer=True, boolean=True)
     check_for_kword(";")
@@ -321,13 +353,21 @@ def variable_reassignment(var_name) -> None:
     Variable_dict[var_name] = value_1
 
 
+def function_increment(var_name) -> str:
+    increment_top_of_stack()
+    check_for_kword("(")
+    number = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+
+    Variable_dict[var_name][0] += int(number)
+
 def function_stuff() -> object:
-    func_name = keyword_list[stack[len(stack)-1]]
+    func_name = keyword_list[top_from_stack()]
     
     stack.append(Def_function_dict[func_name][0])
     
-    while keyword_list[stack[len(stack)-1]] != "return":
-        stack[len(stack)-1] += 1
+    while keyword_list[top_from_stack()] != "return":
+        increment_top_of_stack()
         function_parser()
 
     if Def_function_dict[func_name][1] == "none":
@@ -337,7 +377,7 @@ def function_stuff() -> object:
         function_return = value_parser(string=True, integer=True, boolean=True)
     
     stack.pop()
-    stack[len(stack)-1] += 1
+    increment_top_of_stack()
     return function_return
 
 
@@ -345,15 +385,15 @@ def function_define_func() -> None:
     global stack    
 
     check_for_kword(" ")
-    stack[len(stack)-1] += 1
-    func_name = keyword_list[stack[len(stack)-1]]
+    increment_top_of_stack()
+    func_name = keyword_list[top_from_stack()]
     check_for_kword("(")
     check_for_kword(")")
     
     if skip_kword_if_present(" ") and skip_kword_if_present("->"):
         skip_kword_if_present(" ")
-        stack[len(stack)-1] += 1
-        return_type = keyword_list[stack[len(stack)-1]]
+        increment_top_of_stack()
+        return_type = keyword_list[top_from_stack()]
     else:
         return_type = "None"
     
@@ -361,11 +401,11 @@ def function_define_func() -> None:
     skip_kword_if_present(" ")
     check_for_kword("{")
 
-    func_index = stack[len(stack)-1]
+    func_index = top_from_stack()
     Def_function_dict[func_name] = (func_index, return_type)
 
-    while keyword_list[stack[len(stack)-1]] != "}":
-        stack[len(stack)-1] += 1
+    while keyword_list[top_from_stack()] != "}":
+        increment_top_of_stack()
 
 def function_int() -> tuple[str, str]:
     check_for_kword("(")
@@ -379,7 +419,7 @@ def function_int() -> tuple[str, str]:
             return ("0", "Integer")
     elif val_type == "String":
         if value.isnumeric():
-            return (value[0], "Integer")
+            return (value, "Integer")
         else:
             raise ValueError
     elif val_type == "Integer":
@@ -425,7 +465,7 @@ def exit_program() -> None:
     exit_code = value_parser(string=True, integer=True, boolean=False)[0]
     check_for_kword(")")
     
-    print(f"---Program exited at index {stack[len(stack)-1]}, with exit code \"{exit_code}\"---")
+    print(f"---Program exited at index {top_from_stack()}, with exit code \"{exit_code}\"---")
     exit(exit_code)
 
 
@@ -442,10 +482,10 @@ def function_join() -> str:
 
 def functions_remove() -> str:
     global stack
-    if keyword_list[stack[len(stack)-1] + 1] == ".":
-        stack[len(stack)-1] += 1
-        if keyword_list[stack[len(stack)-1] + 1] == "substring":
-            stack[len(stack)-1] += 1
+    if keyword_list[top_from_stack() + 1] == ".":
+        increment_top_of_stack()
+        if keyword_list[top_from_stack() + 1] == "substring":
+            increment_top_of_stack()
             return function_remove_substring()
 
 
@@ -551,6 +591,13 @@ def function_mod() -> str:
     return str(int(value_1) % int(value_2))
 
 
+def function_sqrt() -> str:
+    check_for_kword("(")
+    value = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+
+    return str(sqrt(int(value)))
+
 def function_if() -> None:
     global Keyword_list, stack
     
@@ -561,19 +608,19 @@ def function_if() -> None:
     skip_kword_if_present(" ")
     if value_1 == "True":
         check_for_kword("{")
-        while Keyword_list[stack[len(stack)-1]] != "}":
-            stack[len(stack)-1] += 1
+        while Keyword_list[top_from_stack()] != "}":
+            increment_top_of_stack()
             function_parser()
     else:
-        while Keyword_list[stack[len(stack)-1]] != "}":
-            stack[len(stack)-1] += 1
+        while Keyword_list[top_from_stack()] != "}":
+            increment_top_of_stack()
     
 
 def function_while() -> None:
     global Keyword_list, stack
     
     check_for_kword("(")
-    condition_index = int(stack[len(stack)-1])
+    condition_index = int(top_from_stack())
     condition = value_parser(string=False, integer=False, boolean=True)[0]
     check_for_kword(")")
     check_for_kword(":")
@@ -581,10 +628,10 @@ def function_while() -> None:
     if condition == "True":
         check_for_kword("{")
         while True:
-            while Keyword_list[stack[len(stack)-1]] != "}":
-                stack[len(stack)-1] += 1
+            while Keyword_list[top_from_stack()] != "}":
+                increment_top_of_stack()
                 function_parser()
-            stack[len(stack)-1] = int(condition_index)
+            set_top_of_stack(int(condition_index))
             condition = value_parser(string=False, integer=False, boolean=True)[0]
             if condition == "True":
                 pass
@@ -592,8 +639,8 @@ def function_while() -> None:
                 break
 
     else:
-        while Keyword_list[stack[len(stack)-1]] != "}":
-            stack[len(stack)-1] += 1
+        while Keyword_list[top_from_stack()] != "}":
+            increment_top_of_stack()
 
 
 def function_fornumb() -> None:
@@ -611,18 +658,18 @@ def function_fornumb() -> None:
     Variable_dict[var_name] = ("0", "Integer")
     
     current_iterations = 0
-    loop_index: int = stack[len(stack)-1]
+    loop_index: int = top_from_stack()
     check_for_kword("{")
     while True:
-        while Keyword_list[stack[len(stack)-1]] != "}":
-            stack[len(stack)-1] += 1
+        while Keyword_list[top_from_stack()] != "}":
+            increment_top_of_stack()
             function_parser()
 
         current_iterations += 1
         Variable_dict[var_name] = (str(current_iterations), "Integer")
         if iteration_amount <= current_iterations:
             break   
-        stack[len(stack)-1] = loop_index
+        set_top_of_stack(loop_index)
 
 
 def function_isequal() -> tuple[str, str]:
@@ -745,11 +792,11 @@ def function_type() -> str:
 def function_let() -> None:
     global stack, Variable_dict
     skip_kword_if_present(" ")
-    stack[len(stack)-1] += 1
-    if Keyword_list[stack[len(stack)-1]] in Variable_list:
-        var_name = Keyword_list[stack[len(stack)-1]]
+    increment_top_of_stack()
+    if Keyword_list[top_from_stack()] in Variable_list:
+        var_name = Keyword_list[top_from_stack()]
     else:
-        print(f"Error: Expected a variable name at keyword {stack[len(stack)-1]}")
+        print(f"Error: Expected a variable name at keyword {top_from_stack()}")
         exit(1)
     skip_kword_if_present(" ")
     check_for_kword("=")
@@ -805,6 +852,7 @@ def function_parser() -> object:
     "divi": function_divi,
     "mod": function_mod,
     "pow": function_pow,
+    "sqrt": function_sqrt,
     
     # python module stuf
     "sleep": function_sleep,
@@ -814,7 +862,7 @@ def function_parser() -> object:
     "exit": exit_program
     }
     
-    keyword = keyword_list[stack[len(stack)-1]]
+    keyword = keyword_list[top_from_stack()]
     
     # Variable functions
     if keyword in Variable_list:
@@ -830,13 +878,13 @@ def run_program() -> None:
     stack = [-1]
 
     while True:
-        stack[len(stack)-1] += 1
-        if stack[len(stack)-1] >= len(Keyword_list):
+        increment_top_of_stack()
+        if top_from_stack() >= len(Keyword_list):
             print("---Exited program naturally---")
             exit()
-        if Keyword_list[stack[len(stack)-1]][0] == "#":
+        if Keyword_list[top_from_stack()][0] == "#":
             if config_file["Announce_comments"] == 1:
-                print(f"- Passed over comment: {Keyword_list[stack[len(stack)-1]]}")
+                print(f"- Passed over comment: {Keyword_list[top_from_stack()]}")
             continue
         function_parser()
 
