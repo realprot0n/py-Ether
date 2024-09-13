@@ -1,12 +1,15 @@
+# Declaring variables
 let: a = 0;
 let: b = 1;
 let: c = 0;
 
 let: i = 0;
+
+#computing the sequence
 fornumb(100000, "i"): {
-    c = add(a,b);
-    a = b;
-    b = c;
+    c = add(a,b); # Set c to the sum of the last two numbers
+    a = b; # Set a to last iteration's b
+    b = c; # Set b to C
 
     print(c)
 }
