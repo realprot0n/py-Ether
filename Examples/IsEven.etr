@@ -1,0 +1,12 @@
+let: i = 0;
+
+define isEven() -> boolean: {
+  if(isequal(mod(i, 2), 0)): {
+    return true
+  }
+  return false
+}
+
+i = input("What number to check?")
+
+print(join(join(i, ": "), isEven))
