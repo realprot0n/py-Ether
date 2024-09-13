@@ -200,21 +200,13 @@ def keyword_parser(f: str) -> list:
 ###############################################################
 
 
-class Var:
-
-    def __init__(self, name, value, v_type) -> None:
-        self.Var_name = name
-        self.Var_value = value
-        self.Var_type = v_type
-
-    def get_value(self) -> object:
-        return self.Var_value
-
-    def get_type(self) -> str:
-        return self.Var_type
+class KeywordExpectedError(Exception): 
+    """The error that gets thrown when a keyword is expected somewhere."""
+    ...
 
  
 def check_for_kword(value: str) -> None:
+    """Checks for [value] being equal to the next keyword. If a value is not found, an error is thrown."""
     global stack
     
     increment_top_of_stack()
@@ -225,10 +217,11 @@ def check_for_kword(value: str) -> None:
         Err_len = config_file["Error_length"]
         Error_keywords = "".join(Keyword_list[top_from_stack()-Err_len:top_from_stack()-1])
         print(f"Behind the error: {Error_keywords}")
-        exit(1)
+        raise KeywordExpectedError
 
 
 def skip_kword_if_present(value: str) -> bool:
+    """If value is the next keyword, increment the stack by one."""
     global stack
 
     if Keyword_list[top_from_stack()+1] == value:
@@ -240,7 +233,7 @@ def skip_kword_if_present(value: str) -> bool:
 
 def top_from_stack() -> int:
     """
-    Replaces "stack[len(stack)-1]"
+    Replaces "stack[len(stack)-1]", gets the value from the top of the stack.
     """
     
     return stack[len(stack)-1]
@@ -248,7 +241,7 @@ def top_from_stack() -> int:
 
 def increment_top_of_stack(number: int = 1) -> None:
     """
-    Replaces "stack[len(stack)-1] += N"
+    Replaces "stack[len(stack)-1] += N", increments the value by [number].
     """
     
     stack[len(stack)-1] += number
@@ -257,11 +250,12 @@ def increment_top_of_stack(number: int = 1) -> None:
 
 def set_top_of_stack(number: int) -> None:
     """
-    Replaces "stack[len(stack)-1] = N"
+    Replaces "stack[len(stack)-1] = N", sets the value at the top of the stack to [number].
     """
     
     stack[len(stack)-1] = number
-    
+
+
 def value_parser(string: bool = False,
                  integer: bool = False,
                  boolean: bool = False) -> tuple[str, str]:
@@ -270,6 +264,7 @@ def value_parser(string: bool = False,
     (Value, Type)
     """
     global stack
+    
     increment_top_of_stack()
     keyword = keyword_list[top_from_stack()]
     
@@ -353,7 +348,7 @@ def variable_reassignment(var_name) -> None:
     Variable_dict[var_name] = value_1
 
 
-def function_increment(var_name) -> str:
+def function_increment(var_name) -> None:
     increment_top_of_stack()
     check_for_kword("(")
     number = value_parser(string=False, integer=True, boolean=False)[0]
@@ -361,12 +356,14 @@ def function_increment(var_name) -> str:
 
     Variable_dict[var_name][0] += int(number)
 
-def function_stuff() -> object:
+
+def function_stuff() -> tuple[str, str]:
     func_name = keyword_list[top_from_stack()]
     
     stack.append(Def_function_dict[func_name][0])
     
-    while keyword_list[top_from_stack()] != "return":
+    while ((keyword_list[top_from_stack()] != "return") and
+           (keyword_list[top_from_stack()] != "}")):
         increment_top_of_stack()
         function_parser()
 
@@ -421,7 +418,7 @@ def function_int() -> tuple[str, str]:
         if value.isnumeric():
             return (value, "Integer")
         else:
-            raise ValueError
+            raise ValueError("Expected a numeric value for int function.")
     elif val_type == "Integer":
         return (value, "Integer")
 
@@ -464,8 +461,9 @@ def exit_program() -> None:
     check_for_kword("(")
     exit_code = value_parser(string=True, integer=True, boolean=False)[0]
     check_for_kword(")")
-    
-    print(f"---Program exited at index {top_from_stack()}, with exit code \"{exit_code}\"---")
+
+    if config_file["Debug"] == 1:
+        print(f"---Program exited at index {top_from_stack()}, with exit code \"{exit_code}\"---")
     exit(exit_code)
 
 
@@ -525,6 +523,17 @@ def function_slice() -> str:
     return value_1[int(start):int(end):int(step)]
 
 
+def function_getchar() -> str:
+    check_for_kword("(")
+    string = value_parser(string=True, integer=True, boolean=True)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    index = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(")")
+
+    return string[index]
+    
+
 def function_add() -> str:
     check_for_kword("(")
     value_1 = value_parser(string=False, integer=True, boolean=False)[0]
@@ -554,6 +563,7 @@ def function_multi() -> str:
     skip_kword_if_present(" ")
     value_2 = value_parser(string=False, integer=True, boolean=False)[0]
     check_for_kword(")")
+    
     return str(int(value_1) * int(value_2))
 
 
@@ -576,7 +586,8 @@ def function_pow() -> str:
     value_2 = value_parser(string=False, integer=True, boolean=False)[0]
     check_for_kword(")")
 
-    # Int is used before string conversion because it rounds the value.
+    # Int is used before string conversion because it rounds the value,
+    # as pow() returns a floating point value.
     return str(int(pow(int(value_1), int(value_2))))
 
 
@@ -769,7 +780,8 @@ def function_xor() -> str:
     check_for_kword(")")
 
     # XOR function i took from the first result on google
-    if ((value_1 == "True") and (value_2 == "False")) or ((value_1 == "False") and (value_2 == "True")):
+    if (((value_1 == "True") and (value_2 == "False")) or
+        ((value_1 == "False") and (value_2 == "True"))):
         return "True"
     else:
         return "False"
@@ -807,7 +819,7 @@ def function_let() -> None:
 
 
 def function_parser() -> object:
-    """The main way that functions are called"""
+    """The main way that functions are called. If a function returns None, the function has no return value."""
     
     global Def_function_list, stack
     
@@ -844,6 +856,7 @@ def function_parser() -> object:
     "remove": functions_remove,
     "shuffle": function_shuffle,
     "slice": function_slice,
+    "getchar": function_getchar,
 
     # arithmetic functions
     "add": function_add,
@@ -874,6 +887,7 @@ def function_parser() -> object:
 
 
 def run_program() -> None:
+    """The main loop for the interpreter."""
     global Keyword_list, stack
     stack = [-1]
 
