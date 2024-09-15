@@ -1,7 +1,7 @@
 import json
 from random import sample
 from time import sleep
-from math import pow
+from math import pow, sqrt
 from tkinter import filedialog as fd
 
 global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
@@ -10,12 +10,12 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_lis
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
-                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", "none",# variable stuf / other stuf
+                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
                    "define", "->", "return", # function stuf
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
                    "not", "and", "or", "xor", # boolean stuf
-                   "add", "subtr", "multi", "divi", "pow", "mod", "sqrt",# arethmetic stuf
+                   "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
                    "sleep"] # python modules
     keyword_list = []
     
@@ -29,9 +29,8 @@ def config_stuff() -> None:
     i = -1
     
     try:
-        config_f = open("config.json", "r")
-        config_file = config_f.read()
-        config_f.close()
+        with open("config.json", "r") as config_f:
+            config_file = config_f.read()
     except FileNotFoundError:
         print("""Config file not found.
 Please create a file named "config.json" in the "Ether interpreter" directory.
@@ -49,15 +48,17 @@ def file_setup() -> None:
     global file
     if config_file["File_picker"] == 1:
         path: str = fd.askopenfilename()
-        if not(path.endswith(".etr")):
-            print("File needs to have \".etr\" extension.")
-            exit(1)
     else:
         # path = "Program.spp"
         path = config_file["Default_file"]
 
+    if not(path.endswith(".etr")):
+        print("File needs to have \".etr\" extension.")
+        exit(1)
+    
     try:
-        file_details = open(path, "r")
+        with open(path, "r") as file_details:
+            file = file_details.read()
     except FileNotFoundError:
         if config_file["File_picker"] != 1:
             print(f"""\"{config_file['Auto_picker_file']}\" File not found in the Ether interpreter directory.
@@ -68,8 +69,7 @@ If you want to choose the file when running, set \"File_picker\" equal to 1.""")
         print("File not found")
         exit(1)
 
-    file = file_details.read()
-    file_details.close()
+
     if config_file["Debug"] == 1:
         print(f"---Program file contents: ---\n{file}")
         print(f"---File is {len(file)} character(s) long---")
@@ -201,7 +201,7 @@ def keyword_parser(f: str) -> list:
 
 
 class KeywordExpectedError(Exception): 
-    """The error that gets thrown when a keyword is expected somewhere."""
+    """The error that gets thrown when a keyword is expected in Keyword_list."""
     ...
 
  
@@ -213,15 +213,15 @@ def check_for_kword(value: str) -> None:
     if Keyword_list[top_from_stack()] == value:
         return
     else:
-        print(f"Error: Expected '{value}' at keyword {top_from_stack()} but found \"{Keyword_list[top_from_stack()]}\"")
         Err_len = config_file["Error_length"]
         Error_keywords = "".join(Keyword_list[top_from_stack()-Err_len:top_from_stack()-1])
         print(f"Behind the error: {Error_keywords}")
-        raise KeywordExpectedError
+        raise KeywordExpectedError(f"Expected '{value}' at keyword {top_from_stack()} but found \"{Keyword_list[top_from_stack()]}\"")
 
 
 def skip_kword_if_present(value: str) -> bool:
-    """If value is the next keyword, increment the stack by one."""
+    """If {value} is the next keyword, increment the stack by one.
+    returns: True if {value} is found in Keyword_list, else returns False."""
     global stack
 
     if Keyword_list[top_from_stack()+1] == value:
@@ -448,6 +448,16 @@ def function_boolean() -> tuple[str, str]:
             return ("True", "Boolean")
         else:
             return ("False", "Boolean")
+
+
+def function_len() -> str:
+    
+    check_for_kword("(")
+    value = value_parser(string=True, integer=True, boolean=False)[0]
+    check_for_kword(")")
+    
+    return str(len(value))
+
 
 def function_print() -> None:
     check_for_kword("(")
@@ -831,6 +841,7 @@ def function_parser() -> object:
     "int": function_int,
     "string": function_string,
     "boolean": function_boolean,
+    "len": function_len,
 
     # User defined functions
     "define": function_define_func,
