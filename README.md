@@ -47,6 +47,9 @@ my own programming language!! :D
 * Asks the user for an input, then returns that input.
 * Uses X as the stem when asking for the input.
 * X = A value of any type.
+### Throw(x)
+* Raises an error with X as the error code.
+* X = a value of type string
 
 ## Variable functions
 ### Let: x = n;
