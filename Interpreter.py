@@ -10,7 +10,7 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_lis
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
-                   "print", "exit", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
+                   "print", "exit", "throw", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
                    "define", "->", "return", # function stuf
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
@@ -202,6 +202,10 @@ def keyword_parser(f: str) -> list:
 
 class KeywordExpectedError(Exception): 
     """The error that gets thrown when a keyword is expected in Keyword_list."""
+    ...
+
+class UserDefinedError(Exception):
+    """The error that gets thrown when throw() is used, with the input value as the error code."""
     ...
 
  
@@ -476,6 +480,13 @@ def exit_program() -> None:
         print(f"---Program exited at index {top_from_stack()}, with exit code \"{exit_code}\"---")
     exit(exit_code)
 
+def function_throw() -> None:
+    # throw is a funnier word than raise so thats why i used it
+    check_for_kword("(")
+    error_code = value_parser(string=True, integer=False, boolean=False)[0]
+    check_for_kword(")")
+
+    raise UserDefinedError(error_code)
 
 def function_join() -> str:
     check_for_kword("(")
@@ -883,7 +894,8 @@ def function_parser() -> object:
 
     #other funcs
     "print": function_print,
-    "exit": exit_program
+    "exit": exit_program,
+    "throw": funciton_throw
     }
     
     keyword = keyword_list[top_from_stack()]
