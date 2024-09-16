@@ -18,6 +18,7 @@ my own programming language!! :D
 	* Prints the length of the file to the console.
 	* Denotes when no errors occurred while parsing the file.
 	* Shows the list of keywords after the file has been parsed.
+ 	* Prints to the console when `exit()` is used. 
 ### "File_picker"
 * Enables or disables the file picker that appears when running Interpreter.py
 * If the value is set to 0, Interpreter.py uses the file stored in "Default_file"
@@ -45,7 +46,7 @@ my own programming language!! :D
 ### Input(x)
 * Asks the user for an input, then returns that input.
 * Uses X as the stem when asking for the input.
-* X = A value of any type. (but why wouldn't you use a string like what)
+* X = A value of any type.
 
 ## Variable functions
 ### Let: x = n;
@@ -58,12 +59,15 @@ my own programming language!! :D
 	* `let: x = 7;`
 	* `let: y = x;`
 	* `x = 3;`
-	* `y = join(y, x);`
-	* `print(y) # 73`
+	* `y = add(x, y);`
+	* `print(y) # 10`
 	* This is valid code.
 ### Type(x)
 * Returns the type of X.
 * X = a variable of any type
+### Len(x)
+* Returns the length of X.
+* X = a variable of any type.
 
 ## String functions
 ### Join(x, y)
@@ -90,19 +94,45 @@ my own programming language!! :D
 * Inverts the input & returns the result.
 * x = a value of type boolean.
 ### And(x, y)
-* Returns the && of x & y.
+* Returns the && of X & Y.
 * x & y = values of type boolean.
 * Spaces are optional
 ### Or(x, y)
-* Returns the || of x & y.
+* Returns the || of X & Y.
 * x & y = values of type boolean.
 * Spaces are optional
+### Xor(x, y)
+* Returns the xor of X & Y.
+* X & Y = values of type boolean
 
 ## Arithmetic functions
 ### add(x, y)
 * Adds X & Y, and returns the result.
 * X & Y = values of type integer.
 * Spaces are optional.
+### subtr(x, y)
+* Subtracts Y from X, and returns the result.
+* X & Y = values of type integer.
+* Spaces are optional.
+### multi(x, y)
+* Multiplies X & Y together, and returns the result.
+* X & Y = values of type integer.
+* Spaces are optional.
+### divi(x, y)
+* Floor divides X by Y, and returns the result.
+* X & Y = values of type integer.
+* Spaces are optional.
+### pow(x, y)
+* Raises X to the power of Y, and returns the result.
+* X & Y = values of type integer.
+* Spaces are optional.
+### mod(x, y)
+* Modularly divides X by Y, and returns the result.
+* X & Y = values of type integer.
+* Spaces are optional.
+### sqrt(x)
+* Takes the square root of X and returns that value
+* X = a value of type integer.
 
 ## Conditionals
 ### If(x): {}
@@ -135,9 +165,21 @@ my own programming language!! :D
 * X = A value of type boolean.
 * **WARNING:** Using this can lead to an infinite loop, only able to be broken out of with KeyboardInterrupt (Ctrl + C).
 * Spaces are optional.
-* Line breaks are possible inside the brackets.
 ### Fornumb(x): {}
 * Repeats code inside the brackets X amount of times
 * X = a value of type integer
 * Spaces are optional.
 * Line breaks are possible inside the brackets.
+
+## Functions
+### Define foo() -> int: {}
+* Defines a function with the name foo.
+* Returns a value if `-> type` is included, otherwise it returns none.
+* No input variables as of now.
+* When called, the code inside the brackets will be run.
+### Return x
+* Only used inside of functions.
+* Returns X out of the function.
+	* Unless there's no `-> type` included OR if `-> none` is included
+
+## Other functions
