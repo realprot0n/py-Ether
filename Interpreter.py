@@ -1,15 +1,19 @@
-import json
+from json import loads
 from random import sample
 from time import sleep
 from math import pow, sqrt
 from tkinter import filedialog as fd
+from sys import setrecursionlimit
 
 global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
 
 
 def config_stuff() -> None:
     global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
-    Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "True", "False", # symbols
+
+    setrecursionlimit(100_000)
+    
+    Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "True", "False", # symbols
                    "print", "exit", "throw", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
                    "define", "->", "return", # function stuf
                    "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
@@ -39,7 +43,7 @@ should be inside the file.
 Using a default config file.""")
         config_file = '{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
 
-    config_file = json.loads(config_file)
+    config_file = loads(config_file) # Turns json file into python dictionary
     if config_file["Debug"] == 1:
         print(f"--- Config file contents: ---\n{config_file}")
 
@@ -75,6 +79,43 @@ If you want to choose the file when running, set \"File_picker\" equal to 1.""")
         print(f"---File is {len(file)} character(s) long---")
 
 
+def parser_let() -> None:
+    global temp_val, i, keyword_list, file
+
+    if temp_val == "let:":
+        keyword_list.append(temp_val)
+        temp_val = ""
+        if file[i + 1] == " ":
+            keyword_list.append(" ")
+            i += 1
+        i += 1
+        temp_val += file[i]
+        while temp_val.join(file[i+1]).isidentifier():
+            i += 1
+            temp_val += file[i]
+        keyword_list.append(temp_val)
+        Variable_list.append(temp_val)
+        temp_val = ""
+        i += 1
+        temp_val += file[i]
+        temp_val = ""
+
+        i += 1
+        temp_val += file[i]
+        if temp_val == "=":
+            keyword_list.append(temp_val)
+            temp_val = ""
+        else:
+            print(f"ERROR: Expected \"=\" at character {i}")
+            exit(f"Expected \"=\" at character {i}")
+
+        if file[i + 1] == " ":
+            keyword_list.append(" ")
+            i += 1
+        if file[i + 1] == "=":
+            keyword_list.append("=")
+            i += 1
+
 def keyword_parser(f: str) -> list:
     global temp_val, i, keyword_list, file
     file = f
@@ -86,39 +127,7 @@ def keyword_parser(f: str) -> list:
         temp_val += file[i]
 
         # Let: var = "value";
-        if temp_val == "let:":
-            keyword_list.append(temp_val)
-            temp_val = ""
-            if file[i + 1] == " ":
-                keyword_list.append(" ")
-                i += 1
-            i += 1
-            temp_val += file[i]
-            while temp_val.join(file[i+1]).isidentifier():
-                i += 1
-                temp_val += file[i]
-            keyword_list.append(temp_val)
-            Variable_list.append(temp_val)
-            temp_val = ""
-            i += 1
-            temp_val += file[i]
-            temp_val = ""
-
-            i += 1
-            temp_val += file[i]
-            if temp_val == "=":
-                keyword_list.append(temp_val)
-                temp_val = ""
-            else:
-                print(f"ERROR: Expected \"=\" at character {i}")
-                exit(f"Expected \"=\" at character {i}")
-
-            if file[i + 1] == " ":
-                keyword_list.append(" ")
-                i += 1
-            if file[i + 1] == "=":
-                keyword_list.append("=")
-                i += 1
+        parser_let()
 
         # Defining functions
         if temp_val == "define":
@@ -207,6 +216,9 @@ class KeywordExpectedError(Exception):
 class UserDefinedError(Exception):
     """The error that gets thrown when throw() is used, with the input value as the error code."""
     ...
+
+class UnexpectedType(Exception):
+    """The error that gets thrown when a specific type of value is expected in a function"""
 
  
 def check_for_kword(value: str) -> None:
@@ -323,7 +335,7 @@ def value_parser(string: bool = False,
 
 
 def variable_stuff() -> None:
-    global stack
+    
     var_name = keyword_list[top_from_stack()]
     increment_top_of_stack()
 
@@ -333,14 +345,12 @@ def variable_stuff() -> None:
     elif keyword_list[top_from_stack()] == "=":
         variable_reassignment(var_name)
 
-    elif keyword_list[top_from_stack()] == ".":
+    elif keyword_list[top_from_stack()] == "++":
         increment_top_of_stack()
-        if keyword_list[top_from_stack()] == "increment":
-            if Variable_dict[var_name][1] == "Integer":
-                function_increment(var_name)
-            else:
-                print("Increment function requires an integer.")
-                exit(1)
+        if Variable_dict[var_name][1] == "Integer":
+            function_increment(var_name)
+        else:
+            UnexpectedType(f"The increment function requires an integer.\nError location: {top_from_stack()}")
 
 
 def variable_reassignment(var_name) -> None:
@@ -704,7 +714,7 @@ def function_fornumb() -> None:
         set_top_of_stack(loop_index)
 
 
-def function_isequal() -> tuple[str, str]:
+def function_isequal() -> str:
     check_for_kword("(")
     value_1 = value_parser(string=True, integer=True, boolean=True)[0]
     check_for_kword(",")
@@ -895,7 +905,7 @@ def function_parser() -> object:
     #other funcs
     "print": function_print,
     "exit": exit_program,
-    "throw": funciton_throw
+    "throw": function_throw
     }
     
     keyword = keyword_list[top_from_stack()]
