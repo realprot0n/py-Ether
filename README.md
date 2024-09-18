@@ -52,17 +52,16 @@ my own programming language!! :D
 * X = a value of type string
 
 ## Variable functions
-### Let: x = n;
+### Let: x = n
 * Assigns variables
 * x = The name of a variable
 * n = A value of any type.
 * Spaces are optional.
-* The semicolon is neccesary.
 * Variable reassignments don't need the "Let:" keyword
-	* `let: x = 7;`
-	* `let: y = x;`
-	* `x = 3;`
-	* `y = add(x, y);`
+	* `let: x = 7`
+	* `let: y = x`
+	* `x = 3`
+	* `y = add(x, y)`
 	* `print(y) # 10`
 	* This is valid code.
 ### Type(x)
@@ -71,6 +70,9 @@ my own programming language!! :D
 ### Len(x)
 * Returns the length of X.
 * X = a variable of any type.
+### var++
+* Increments var by one.
+* Faster than saying "i = add(i, 1);
 
 ## String functions
 ### Join(x, y)
@@ -173,6 +175,9 @@ my own programming language!! :D
 * X = a value of type integer
 * Spaces are optional.
 * Line breaks are possible inside the brackets.
+### Break
+* Breaks out of the highest level loop.
+* Does not require any arguments or inputs.
 
 ## Functions
 ### Define foo() -> int: {}
