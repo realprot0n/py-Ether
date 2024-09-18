@@ -5,22 +5,22 @@ from math import pow, sqrt
 from tkinter import filedialog as fd
 from sys import setrecursionlimit
 
-global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
+global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break
 
 
 def config_stuff() -> None:
-    global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file
-
-    setrecursionlimit(100_000)
+    global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break
+    
+    setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make recursion without throwing an error
     
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "True", "False", # symbols
                    "print", "exit", "throw", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
-                   "define", "->", "return", # function stuf
-                   "if", "while", "fornumb", "isequal", "isgreater", "islesser", # loops and logic stuf
+                   "define", "->", "return", "args", # function stuf
+                   "if", "while", "fornumb", "break", "isequal", "isgreater", "islesser", # loops and logic stuf
                    "join", "remove", "substring", "shuffle", "slice", # string stuf
                    "not", "and", "or", "xor", # boolean stuf
                    "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
-                   "sleep"] # python modules
+                   "sleep"] # python modules 
     keyword_list = []
     
     Variable_list = []
@@ -31,6 +31,8 @@ def config_stuff() -> None:
     
     temp_val = ""
     i = -1
+    
+    loop_break = False
     
     try:
         with open("config.json", "r") as config_f:
@@ -116,9 +118,8 @@ def parser_let() -> None:
             keyword_list.append("=")
             i += 1
 
-def keyword_parser(f: str) -> list:
+def keyword_parser() -> list:
     global temp_val, i, keyword_list, file
-    file = f
     i = -1
     temp_val = ""
     keyword_list = []
@@ -316,7 +317,7 @@ def value_parser(string: bool = False,
             return (function_ret, "Boolean")
         elif string:
             return (str(function_ret), "String")
-
+    params = ""
     # Error Handling
     if string:
         params = "string, "
@@ -334,8 +335,7 @@ def value_parser(string: bool = False,
     exit(1)
 
 
-def variable_stuff() -> None:
-    
+def variable_stuff() -> None:    
     var_name = keyword_list[top_from_stack()]
     increment_top_of_stack()
 
@@ -346,7 +346,6 @@ def variable_stuff() -> None:
         variable_reassignment(var_name)
 
     elif keyword_list[top_from_stack()] == "++":
-        increment_top_of_stack()
         if Variable_dict[var_name][1] == "Integer":
             function_increment(var_name)
         else:
@@ -357,18 +356,15 @@ def variable_reassignment(var_name) -> None:
     increment_top_of_stack()
     skip_kword_if_present(" ")
     value_1 = value_parser(string=True, integer=True, boolean=True)
-    check_for_kword(";")
+    # check_for_kword(";")
     
     Variable_dict[var_name] = value_1
 
 
 def function_increment(var_name) -> None:
-    increment_top_of_stack()
-    check_for_kword("(")
-    number = value_parser(string=False, integer=True, boolean=False)[0]
-    check_for_kword(")")
 
-    Variable_dict[var_name][0] += int(number)
+    incremented_var = int(Variable_dict[var_name][0]) + 1
+    Variable_dict[var_name] = (str(incremented_var), "Integer")
 
 
 def function_stuff() -> tuple[str, str]:
@@ -393,13 +389,13 @@ def function_stuff() -> tuple[str, str]:
 
 
 def function_define_func() -> None:
-    global stack    
-
     check_for_kword(" ")
     increment_top_of_stack()
     func_name = keyword_list[top_from_stack()]
     check_for_kword("(")
     check_for_kword(")")
+    
+    # TODO: Add support for input values, in the format args(value, value...)
     
     if skip_kword_if_present(" ") and skip_kword_if_present("->"):
         skip_kword_if_present(" ")
@@ -531,15 +527,15 @@ def function_remove_substring() -> str:
 
 def function_shuffle() -> str:
     check_for_kword("(")
-    value_1 = value_parser(string=True, integer=True, boolean=True)[0]
+    value = value_parser(string=True, integer=True, boolean=False)[0]
     check_for_kword(")")
     
-    return "".join(sample(value_1, len(value_1)))
+    return "".join(sample(value, len(value)))
 
 
 def function_slice() -> str:
     check_for_kword("(")
-    value_1 = value_parser(string=True, integer=False, boolean=False)[0]
+    value = value_parser(string=True, integer=False, boolean=False)[0]
     check_for_kword(",")
     skip_kword_if_present(" ")
     start = value_parser(string=False, integer=True, boolean=False)[0]
@@ -551,7 +547,7 @@ def function_slice() -> str:
     step = value_parser(string=False, integer=True, boolean=False)[0]
     check_for_kword(")")
     
-    return value_1[int(start):int(end):int(step)]
+    return value[int(start):int(end):int(step)]
 
 
 def function_getchar() -> str:
@@ -659,7 +655,7 @@ def function_if() -> None:
     
 
 def function_while() -> None:
-    global Keyword_list, stack
+    global Keyword_list, stack, loop_break
     
     check_for_kword("(")
     condition_index = int(top_from_stack())
@@ -673,8 +669,16 @@ def function_while() -> None:
             while Keyword_list[top_from_stack()] != "}":
                 increment_top_of_stack()
                 function_parser()
+                if loop_break:
+                    break
+            
+            if loop_break:
+                loop_break = False
+                break
+            
             set_top_of_stack(int(condition_index))
             condition = value_parser(string=False, integer=False, boolean=True)[0]
+            
             if condition == "True":
                 pass
             else:
@@ -685,8 +689,13 @@ def function_while() -> None:
             increment_top_of_stack()
 
 
+def function_break() -> None:
+    """Sets the loop_break variable to True, causing loops to end."""
+    global loop_break
+    loop_break = True
+
 def function_fornumb() -> None:
-    global Keyword_list, stack, Variable_list
+    global Keyword_list, stack, Variable_list, loop_break
     
     check_for_kword("(")
     iteration_amount: int = int(value_parser(string=False, integer=True, boolean=False)[0])
@@ -706,6 +715,12 @@ def function_fornumb() -> None:
         while Keyword_list[top_from_stack()] != "}":
             increment_top_of_stack()
             function_parser()
+            if loop_break:
+                break
+                
+        if loop_break:
+            loop_break = False
+            break
 
         current_iterations += 1
         Variable_dict[var_name] = (str(current_iterations), "Integer")
@@ -845,7 +860,7 @@ def function_let() -> None:
     check_for_kword("=")
     skip_kword_if_present(" ")
     value_1 = value_parser(string=True, integer=True, boolean=True)
-    check_for_kword(";")
+    # check_for_kword(";")
     Variable_dict[var_name] = value_1
 
 
@@ -876,6 +891,7 @@ def function_parser() -> object:
     # Loop functions
     "while": function_while,
     "fornumb": function_fornumb,
+    "break": function_break,
     
     # Boolean functions
     "not": function_not,
@@ -941,7 +957,7 @@ def main() -> None:
 
     config_stuff()
     file_setup()
-    Keyword_list = keyword_parser(file)
+    Keyword_list = keyword_parser()
     if config_file["Debug"] == 1:
         # print("testing for classes in the future")
         # a = [Var("the", 123, "integer")]
