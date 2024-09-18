@@ -17,7 +17,7 @@ def config_stuff() -> None:
                    "print", "exit", "throw", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
                    "define", "->", "return", "args", # function stuf
                    "if", "while", "fornumb", "break", "isequal", "isgreater", "islesser", # loops and logic stuf
-                   "join", "remove", "substring", "shuffle", "slice", # string stuf
+                   "join", "remove", "substring", "shuffle", "slice", "getchar", "repchar"# string stuf
                    "not", "and", "or", "xor", # boolean stuf
                    "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
                    "sleep"] # python modules 
@@ -385,7 +385,9 @@ def function_stuff() -> tuple[str, str]:
     
     stack.pop()
     increment_top_of_stack()
-    return function_return
+    return function_return if (Def_function_list[func_name][1] == function_return[1])
+    
+    raise UnexpectedType(f"Expected type {Def_function_list[func_name][1]} to return from {func_name}, but got {function_return[1]} instead.")
 
 
 def function_define_func() -> None:
@@ -516,13 +518,13 @@ def functions_remove() -> str:
 
 def function_remove_substring() -> str:
     check_for_kword("(")
-    value_1 = value_parser(string=True, integer=False, boolean=False)[0]
+    value = value_parser(string=True, integer=False, boolean=False)[0]
     check_for_kword(",")
     skip_kword_if_present(" ")
     substring = value_parser(string=True, integer=False, boolean=False)[0]
     check_for_kword(")")
     
-    return value_1.replace(substring, "")
+    return value.replace(substring, "")
 
 
 def function_shuffle() -> str:
@@ -552,7 +554,7 @@ def function_slice() -> str:
 
 def function_getchar() -> str:
     check_for_kword("(")
-    string = value_parser(string=True, integer=True, boolean=True)[0]
+    string = value_parser(string=True, integer=False, boolean=False)[0]
     check_for_kword(",")
     skip_kword_if_present(" ")
     index = value_parser(string=False, integer=True, boolean=False)[0]
@@ -560,6 +562,20 @@ def function_getchar() -> str:
 
     return string[index]
     
+
+def function_repchar() -> str:
+    check_for_kword("(")
+    string = value_parser(string=True, integer=False, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    index = value_parser(string=False, integer=True, boolean=False)[0]
+    check_for_kword(",")
+    skip_kword_if_present(" ")
+    replacement = value_parser(string=True, integer=False, boolean=False)[0]
+    check_for_kword(")")
+    
+    return f"{string[:index-1]}{replacement}{string[index+1:]}"
+
 
 def function_add() -> str:
     check_for_kword("(")
@@ -654,6 +670,12 @@ def function_if() -> None:
             increment_top_of_stack()
     
 
+def function_break() -> None:
+    """Sets the loop_break variable to True, causing loops to end."""
+    global loop_break
+    loop_break = True
+
+
 def function_while() -> None:
     global Keyword_list, stack, loop_break
     
@@ -688,11 +710,6 @@ def function_while() -> None:
         while Keyword_list[top_from_stack()] != "}":
             increment_top_of_stack()
 
-
-def function_break() -> None:
-    """Sets the loop_break variable to True, causing loops to end."""
-    global loop_break
-    loop_break = True
 
 def function_fornumb() -> None:
     global Keyword_list, stack, Variable_list, loop_break
@@ -905,6 +922,7 @@ def function_parser() -> object:
     "shuffle": function_shuffle,
     "slice": function_slice,
     "getchar": function_getchar,
+    "repchar": function_repchar,
 
     # arithmetic functions
     "add": function_add,
@@ -938,7 +956,7 @@ def function_parser() -> object:
 def run_program() -> None:
     """The main loop for the interpreter."""
     global Keyword_list, stack
-    stack = [-1]
+    stack = [-1] # the stack is a list of integers, use stack.append() and stack.pop() to add or remove values from it
 
     while True:
         increment_top_of_stack()
