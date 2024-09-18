@@ -385,9 +385,11 @@ def function_stuff() -> tuple[str, str]:
     
     stack.pop()
     increment_top_of_stack()
-    return function_return if (Def_function_list[func_name][1] == function_return[1])
+    increment_top_of_stack()
+    if (Def_function_dict[func_name][1] == function_return[1].lower()):
+        return function_return 
     
-    raise UnexpectedType(f"Expected type {Def_function_list[func_name][1]} to return from {func_name}, but got {function_return[1]} instead.")
+    raise UnexpectedType(f"Expected type {Def_function_dict[func_name][1]} to return from {func_name}, but got {function_return[1]} instead.")
 
 
 def function_define_func() -> None:
@@ -987,3 +989,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    
