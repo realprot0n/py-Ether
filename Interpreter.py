@@ -52,7 +52,7 @@ Using a default config file.""")
 
 
 def file_setup() -> None:
-    """Loads the file into """
+    """Loads the file into the interpreter"""
     global file
     if config_file["File_picker"] == 1:
         path: str = fd.askopenfilename()
@@ -276,17 +276,16 @@ def set_top_of_stack(number: int) -> None:
 
 
 def get_current_kword() -> str:
-    """Replaces """
+    """Replaces "keyword_list[top_from_stack()]", gets the current keyword."""
     return keyword_list[top_from_stack()]
 
 
 def value_parser(string: bool = False,
                  integer: bool = False,
                  boolean: bool = False) -> tuple[str, str]:
-    """
+    """ Parses through keyword_list to find a value of type string, integer, or boolean.
     The return tuple is formatted like this:
-    (Value, Type)
-    """
+    (Value, Type)"""
     global stack
     
     increment_top_of_stack()
@@ -295,6 +294,7 @@ def value_parser(string: bool = False,
     # Variable parsing
     if keyword in Variable_list:
         var_val = Variable_dict.get(keyword)
+        
         if (var_val[1] == "Integer") & integer:
             return var_val
         elif (var_val[1] == "String") & string:
