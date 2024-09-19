@@ -188,6 +188,12 @@ my own programming language!! :D
 ### Return x
 * Only used inside of functions.
 * Returns X out of the function.
-	* Unless there's no `-> type` included OR if `-> none` is included
+	* Unless there's no `-> type` included OR if `-> none` is included when defining the function
 
 ## Other functions
+### Sleep(n)
+* Pauses the program for n seconds.
+* N = A value of type integer.
+### MSleep(n)
+* Pauses the program for n milliseconds.
+* N = A value of type integer
