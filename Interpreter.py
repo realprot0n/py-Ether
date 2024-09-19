@@ -9,9 +9,10 @@ global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_lis
 
 
 def config_stuff() -> None:
+    """Sets up configuration file and global variables"""
     global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break
     
-    setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make recursion without throwing an error
+    setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make without throwing an error
     
     Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "True", "False", # symbols
                    "print", "exit", "throw", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
@@ -51,6 +52,7 @@ Using a default config file.""")
 
 
 def file_setup() -> None:
+    """Loads the file into """
     global file
     if config_file["File_picker"] == 1:
         path: str = fd.askopenfilename()
@@ -273,6 +275,11 @@ def set_top_of_stack(number: int) -> None:
     stack[len(stack)-1] = number
 
 
+def get_current_kword() -> str:
+    """Replaces """
+    return keyword_list[top_from_stack()]
+
+
 def value_parser(string: bool = False,
                  integer: bool = False,
                  boolean: bool = False) -> tuple[str, str]:
@@ -395,25 +402,33 @@ def function_stuff() -> tuple[str, str]:
 def function_define_func() -> None:
     check_for_kword(" ")
     increment_top_of_stack()
-    func_name = keyword_list[top_from_stack()]
+    func_name: str = keyword_list[top_from_stack()]
     check_for_kword("(")
     check_for_kword(")")
     
     # TODO: Add support for input values, in the format args(value, value...)
-    
-    if skip_kword_if_present(" ") and skip_kword_if_present("->"):
+    if skip_kword_if_present(" ") and skip_kword_if_present("args"): # Checks for " " and "args"
+        check_for_kword("(")
+
+        func_arguments: list = []
+        while keyword_list[top_from_stack()] != ")":
+            func_arguments.append(value_parser(string=True, integer=False, boolean=False)[0])
+            check_for_kword(",")
+            skip_kword_if_present(" ")
+        
+    if skip_kword_if_present(" ") and skip_kword_if_present("->"): # Checks for " " and "->"
         skip_kword_if_present(" ")
         increment_top_of_stack()
-        return_type = keyword_list[top_from_stack()]
+        return_type: str = keyword_list[top_from_stack()]
     else:
-        return_type = "None"
+        return_type: str = "None"
     
     check_for_kword(":")
     skip_kword_if_present(" ")
     check_for_kword("{")
 
-    func_index = top_from_stack()
-    Def_function_dict[func_name] = (func_index, return_type)
+    func_index: int = top_from_stack()
+    Def_function_dict[func_name] = (func_index, return_type, func_arguments)
 
     while keyword_list[top_from_stack()] != "}":
         increment_top_of_stack()
