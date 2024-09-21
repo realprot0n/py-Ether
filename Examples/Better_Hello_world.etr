@@ -1,17 +1,17 @@
 let: x = "Hello, World!"
 let: y = x
-print(x)
+println(x)
 
 let: i = 0
 fornumb(len(x), "i"): {
   x = repchar(x, i, "_")
   
-  print(x)
+  println(x)
 }
 
 fornumb(len(x), ""): {
   i--
   x = repchar(x, i, getchar(y, i))
   
-  print(x)
+  println(x)
 }
