@@ -1,12 +1,9 @@
-let: i = 0
-
-define isEven() -> boolean: {
-  if(isequal(mod(i, 2), 0)): {
-    return true
+let: number = 0
+define isEven args("numb") -> boolean: {
+  if(isequal(mod(number, 2), 0)): {
+    return True
   }
-  return false
+  return False
 }
 
-i = input("What number to check?")
-
-print(join(join(i, ": "), isEven))
+println(isEven(2))
