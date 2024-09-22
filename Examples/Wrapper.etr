@@ -1,18 +1,21 @@
 let: var = ""
 let: wrapper = ""
-define wrap args("var", "wrapper") -> string: {
-  
-  let: full_str = join(wrapper, wrapper)
-  full_str = join(full_str, wrapper)
-  full_str = join(full_str, wrapper)
-  
-  let: new_var = join(join(" ", var), " ")
-  return join(join(full_str, new_var), full_str)
+let: full_str = "" # For some reason, you cant define this inside the function; odd...
+let: wrapLength = 0
+define wrap args("var", "wrapper", "wrapLength") -> string: {
+  let: _ = 0
+  full_str = wrapper
+  fornumb(subtr(wrapLength, 1), "_"): {
+    full_str = join(full_str, wrapper)
+  }
+
+  var = join(join(" ", var), " ")
+  return join(join(full_str, var), full_str)
 }
 
 let: i = 0
-fornumb(10000, "i"): {
-  println(wrap(string(i), "##"))
+fornumb(100, "i"): {
+  println(wrap(string(i), "##", 2))
 }
 
-println(wrap(input("What do you want to wrap? "), "~~~"))
+println(wrap(input("What do you want to wrap? "), input("What do you want to use to wrap? "), input("How many times for the wrapper to repeat? ")))
