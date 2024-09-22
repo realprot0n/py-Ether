@@ -4,13 +4,13 @@ let: b = 1
 let: c = 0
 
 let: i = 0
-let: iterations = input("what fibonacci number do you want to find? ")
+let: iterations = input("What fibonacci number do you want to find? ")
 
 # computing the sequence
 fornumb(subtr(iterations, 1), "i"): {
-    c = add(a,b) # Set c to the sum of the last two numbers
+    c = add(a, b) # Set c to the sum of the last two numbers
     a = b # Set a to last iteration's b
     b = c # Set b to C
 }
 
-print(c)
+println(c)
