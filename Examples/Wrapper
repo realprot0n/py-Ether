@@ -1,0 +1,18 @@
+let: var = ""
+let: wrapper = ""
+define wrap args("var", "wrapper") -> string: {
+  
+  let: full_str = join(wrapper, wrapper)
+  full_str = join(full_str, wrapper)
+  full_str = join(full_str, wrapper)
+  
+  let: new_var = join(join(" ", var), " ")
+  return join(join(full_str, new_var), full_str)
+}
+
+let: i = 0
+fornumb(10000, "i"): {
+  println(wrap(string(i), "##"))
+}
+
+println(wrap(input("What do you want to wrap? "), "~~~"))
