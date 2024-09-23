@@ -2,7 +2,7 @@
 my own programming language!! :D
 
 ## Common formatting / Notes
-* Functions, such as `print(n)`, will have parenthesis around arguments.
+* Functions, such as `println(n)`, will have parenthesis around arguments.
 * Functions can be nested nearly infinitely.
 * Spp is a zero-indexed language.
 * Files in the Ether format will be denoted with the file ending ".etr".
@@ -40,7 +40,7 @@ my own programming language!! :D
 * Instantly exits the program, with n as the exit code.
 * Prints the exit index & where
 * n = A value of type string or int.
-### Print(n)
+### Println(n)
 * Prints n to the console.
 * n = A value of any type
 ### Input(x)
@@ -72,7 +72,10 @@ my own programming language!! :D
 * X = a variable of any type.
 ### var++
 * Increments var by one.
-* Faster than saying "i = add(i, 1);
+* Faster than saying `i = add(i, 1)`
+### var--
+* Decrements var by one.
+* Faster than saying `i = subtr(i, 1)`
 
 ## String functions
 ### Join(x, y)
@@ -99,16 +102,17 @@ my own programming language!! :D
 * Inverts the input & returns the result.
 * x = a value of type boolean.
 ### And(x, y)
-* Returns the && of X & Y.
+* Returns the logical AND of X & Y.
 * x & y = values of type boolean.
 * Spaces are optional
 ### Or(x, y)
-* Returns the || of X & Y.
+* Returns the logical OR of X & Y.
 * x & y = values of type boolean.
 * Spaces are optional
 ### Xor(x, y)
-* Returns the xor of X & Y.
+* Returns the logical XOR of X & Y.
 * X & Y = values of type boolean
+* Spaces are optional
 
 ## Arithmetic functions
 ### add(x, y)
@@ -136,7 +140,7 @@ my own programming language!! :D
 * X & Y = values of type integer.
 * Spaces are optional.
 ### sqrt(x)
-* Takes the square root of X and returns that value
+* Takes the square root of X and returns that value (rounded down).
 * X = a value of type integer.
 
 ## Conditionals
@@ -180,11 +184,14 @@ my own programming language!! :D
 * Does not require any arguments or inputs.
 
 ## Functions
-### Define foo() -> int: {}
+### Define foo args("bar", "baz") -> int: {}
 * Defines a function with the name foo.
-* Returns a value if `-> type` is included, otherwise it returns none.
+* Foo will take in two values as its inputs, bar and baz.
+	* Input variables NEED to be defined before creating the function.
+* Returns a value if `-> {type}` is included, otherwise it returns none.
 * No input variables as of now.
 * When called, the code inside the brackets will be run.
+	* Called with the format foo("bar", "baz")
 ### Return x
 * Only used inside of functions.
 * Returns X out of the function.
