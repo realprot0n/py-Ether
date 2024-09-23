@@ -1,0 +1,14 @@
+let: choice = ""
+let: numb1 = 0
+let: numb2 = 0
+def calculator args("choice", "numb1", "numb2") -> int: {
+  let: result = 0
+  if(isequal(choice, "add")): {
+    result = add(numb1, numb2)
+  } if(isequal(choice, "subtract")): {
+    result = subtr(numb1, numb2)
+  } if(isequal(choice, "multiply")): {
+  
+  }
+  
+}
