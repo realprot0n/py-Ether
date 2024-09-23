@@ -7,4 +7,4 @@ b = pow(b, 2)
 let: c = add(a, b)
 c = sqrt(c)
 
-print(join("The length of C is ", c))
+println(join("The length of C is ", c))
