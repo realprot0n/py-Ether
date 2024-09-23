@@ -1,9 +1,6 @@
-let: number = 0
+let: numb = 0
 define isEven args("numb") -> boolean: {
-  if(isequal(mod(number, 2), 0)): {
-    return True
-  }
-  return False
+  return isequal(mod(numb, 2), 0)
 }
 
-println(isEven(2))
+println(isEven(input("what number do you want to check for evenness? ")))
