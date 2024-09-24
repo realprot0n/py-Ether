@@ -4,6 +4,7 @@ from time import sleep
 from math import pow, sqrt
 from tkinter import filedialog as fd
 from sys import setrecursionlimit
+from datetime import datetime
 
 global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break
 
@@ -15,13 +16,13 @@ def config_stuff() -> None:
   setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make without throwing an error
   
   Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "--", "True", "False", # symbols
-                "println", "exit", "throw", "let:", "input", "type", "int", "string", "boolean", "none", "len", # variable stuf / other stuf
+                "println", "exit", "throw", "let:", "input", "type", "integer", "string", "boolean", "none", "len", # variable stuf / other stuf
                 "define", "->", "return", "args", # function stuf
                 "if", "while", "fornumb", "break", "isequal", "isgreater", "islesser", # loops and logic stuf
                 "join", "remove", "substring", "shuffle", "slice", "getchar", "repchar", # string stuf
                 "not", "and", "or", "xor", # boolean stuf
                 "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
-                "sleep", "msleep"] # python modules 
+                "sleep", "msleep", "datetime"] # python modules 
   keyword_list = []
   
   Variable_list = []
@@ -110,7 +111,7 @@ def parser_let() -> None:
       keyword_list.append(temp_val)
       temp_val = ""
     else:
-      print(f"ERROR: Expected \"=\" at character {i}")
+      print(f"ERROR: Expected \"=\" at character {i} (file up to {file[:i]})")
       exit(f"Expected \"=\" at character {i}")
 
     if file[i + 1] == " ":
@@ -434,12 +435,13 @@ def function_stuff() -> tuple[str, str]:
     # never mind its a problem with all functions with brackets surrounding code
     # I GET IT; its a problem with every bracketed fn because the code thinks the bracket is the ending bracket!!!
     function_return = value_parser(string=True, integer=True, boolean=True)
+  func_return_type = function_return[1]
   
   stack.pop()
-  if (Def_function_dict[func_name][1] == function_return[1].lower()):
+  if (Def_function_dict[func_name][1] == func_return_type.lower()):
     return function_return 
   else:
-    raise UnexpectedType(f"Expected type {Def_function_dict[func_name][1]} to return from {func_name}, but got {function_return} instead.")
+    raise UnexpectedType(f"Expected type {Def_function_dict[func_name][1]} to return from {func_name}, but got {func_return_type} instead.")
 
 
 def function_define_func() -> None:
@@ -487,7 +489,7 @@ def function_define_func() -> None:
     increment_top_of_stack()
 
 
-def function_int() -> tuple[str, str]:
+def function_integer() -> tuple[str, str]:
   check_for_kword("(")
   value, val_type = value_parser(string=True, integer=True, boolean=True)
   check_for_kword(")")
@@ -630,7 +632,7 @@ def function_getchar() -> str:
   check_for_kword(")")
   
   return string[index]
-  
+
 
 def function_repchar() -> str:
   check_for_kword("(")
@@ -865,7 +867,7 @@ def function_islesser() -> str:
     return "True" if int(value_1) < int(value_2) else "False"
   except ValueError:
     return "True" if value_1 < value_2 else "False"
-  
+
 
 def function_sleep() -> None:
   check_for_kword("(")
@@ -881,6 +883,13 @@ def function_msleep() -> None:
   check_for_kword(")")
   
   sleep(int(value) / 1000)
+
+
+def function_datetime() -> str:
+  check_for_kword("(")
+  check_for_kword(")")
+  
+  return str(datetime.now())
 
 def function_not() -> str:
   check_for_kword("(")
@@ -984,7 +993,7 @@ def function_parser() -> object:
   "let:": function_let,
   "type": function_type,
   "input": function_input,
-  "int": function_int,
+  "integer": function_integer,
   "string": function_string,
   "boolean": function_boolean,
   "len": function_len,
@@ -1029,6 +1038,7 @@ def function_parser() -> object:
   # python module stuf
   "sleep": function_sleep,
   "msleep": function_msleep,
+  "datetime": function_datetime,
   
   #other funcs
   "println": function_println,
