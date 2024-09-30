@@ -1,17 +1,15 @@
 from json import loads
 from random import sample
-from time import sleep
 from math import pow, sqrt
 from tkinter import filedialog as fd
 from sys import setrecursionlimit
 from datetime import datetime
-
-global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break
+import time
 
 
 def config_stuff() -> None:
   """Sets up configuration file and global variables"""
-  global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break
+  global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break, _timer
   
   setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make without throwing an error
   
@@ -22,7 +20,7 @@ def config_stuff() -> None:
                 "join", "remove", "substring", "shuffle", "slice", "getchar", "repchar", # string stuf
                 "not", "and", "or", "xor", # boolean stuf
                 "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
-                "sleep", "msleep", "datetime"] # python modules 
+                "sleep", "msleep", "datetime", "timer", "start", "restart", "get", "stop"] # python stuff
   keyword_list = []
   
   Variable_list = []
@@ -35,6 +33,7 @@ def config_stuff() -> None:
   i = -1
   
   loop_break = False
+  _timer = Timer()
   
   try:
     with open("config.json", "r") as config_f:
@@ -46,7 +45,7 @@ Please create a file named "config.json" in the "Ether interpreter" directory.
 should be inside the file.
 Using a default config file.""")
     config_file = '{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
-
+  
   config_file = loads(config_file) # Turns json file into python dictionary
   if config_file["Debug"] == 1:
     print(f"--- Config file contents: ---\n{config_file}")
@@ -60,7 +59,7 @@ def file_setup() -> None:
   else:
     # path = "Program.spp"
     path = config_file["Default_file"]
-
+  
   if not(path.endswith(".etr")):
     print("File needs to have \".etr\" extension.")
     exit(1)
@@ -77,8 +76,8 @@ If you want to choose the file when running, set \"File_picker\" equal to 1.""")
     
     print("File not found")
     exit(1)
-
-
+  
+  
   if config_file["Debug"] == 1:
     print(f"---Program file contents: ---\n{file}")
     print(f"---File is {len(file)} character(s) long---")
@@ -121,11 +120,15 @@ def parser_let() -> None:
       keyword_list.append("=")
       i += 1
 
-def keyword_parser() -> list:
+def keyword_parser() -> list[str]:
+  """Parses the input file for keywords, returning a list of keywords."""
   global temp_val, i, keyword_list, file
   i = -1
   temp_val = ""
   keyword_list = []
+  if config_file["Debug"] == 1:
+    parser_timer = Timer()
+    parser_timer.start()
   while True:
     i += 1
     temp_val += file[i]
@@ -207,6 +210,8 @@ def keyword_parser() -> list:
       else:
         if config_file["Debug"] == 1:
           print("---No errors while compiling---")
+          parser_timer.stop()
+          print(f"Time to parse: {parser_timer.get_time()} seconds")
       return keyword_list
 
 
@@ -217,17 +222,39 @@ class KeywordExpectedError(Exception):
   """The error that gets thrown when a keyword is expected in Keyword_list."""
   ...
 
+
 class UserDefinedError(Exception):
   """The error that gets thrown when throw() is used, with the input value as the error code."""
   ...
 
+
 class UnexpectedType(Exception):
   """The error that gets thrown when a specific type of value is expected in a function"""
+  ...
+
+
+class Timer:
+  def __init__(self):
+    self.start_time = None
+    self.is_running = False
+  
+  def start(self):
+    if not self.is_running:
+      self.start_time = time.time()
+      self.is_running = True
+  
+  def restart(self):
+    self.start()
+  
+  def get_time(self): # If the timer is stopped, it will return the value when stopped
+    return time.time() - self.start_time
+  
+  def stop(self): # Stops the timer
+    self.is_running = False
 
 
 def check_for_kword(value: str) -> None:
   """Checks for [value] being equal to the next keyword. If a value is not found, an error is thrown."""
-  global stack
   
   increment_top_of_stack()
   # print(Keyword_list[top_from_stack()])
@@ -242,8 +269,9 @@ def check_for_kword(value: str) -> None:
 
 def skip_kword_if_present(value: str) -> bool:
   """If {value} is the next keyword, increment the stack by one.
-  returns: True if {value} is found in Keyword_list, else returns False."""
-  global stack
+  
+  returns:
+    True if {value} is found in Keyword_list, else returns False."""
   
   if Keyword_list[top_from_stack()+1] == value:
     increment_top_of_stack()
@@ -747,7 +775,7 @@ def function_break() -> None:
   loop_break = True
 
 
-# TODO: make "function_return" function for user defined functions, to make sure that return statements inside of loops/functions work as intended.
+# TODO: make "function_return" function for user defined functions, to make sure that return statements inside of loops/if statements work as intended.
 
 
 def function_while() -> None:
@@ -874,7 +902,7 @@ def function_sleep() -> None:
   value = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
   
-  sleep(int(value))
+  time.sleep(int(value))
 
 
 def function_msleep() -> None:
@@ -882,7 +910,47 @@ def function_msleep() -> None:
   value = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
   
-  sleep(int(value) / 1000)
+  time.sleep(int(value) / 1000)
+
+
+def function_timer() -> object:
+  if skip_kword_if_present("."):
+    if skip_kword_if_present("start"):
+      function_timerStart()
+    elif skip_kword_if_present("restart"):
+      function_timerRestart()
+    elif skip_kword_if_present("get"):
+      return function_timerGet()
+    elif skip_kword_if_present("stop"):
+      function_timerStop()
+
+
+def function_timerStart() -> None:
+  check_for_kword("(")
+  check_for_kword(")")
+  
+  _timer.start()
+
+
+def function_timerGet() -> str:
+  check_for_kword("(")
+  check_for_kword(")")
+  
+  return str(_timer.get_time())
+
+
+def function_timerStop() -> None:
+  check_for_kword("(")
+  check_for_kword(")")
+  
+  _timer.stop()
+
+
+def function_timerRestart() -> None:
+  check_for_kword("(")
+  check_for_kword(")")
+  
+  _timer.restart()
 
 
 def function_datetime() -> str:
@@ -1039,6 +1107,7 @@ def function_parser() -> object:
   "sleep": function_sleep,
   "msleep": function_msleep,
   "datetime": function_datetime,
+  "timer": function_timer,
   
   #other funcs
   "println": function_println,
