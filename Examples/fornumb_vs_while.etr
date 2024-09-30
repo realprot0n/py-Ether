@@ -1,0 +1,22 @@
+let: i = 0
+let: sum = 0
+let: iterations = input("Enter number of iterations: ")
+
+timer.start()
+fornumb(iterations, "i"): {
+  sum = add(sum, i)
+}
+timer.stop()
+
+println(join("fornumb loop time: ", timer.get()))
+i = 0
+sum = 0
+
+timer.start()
+while(not(isequal(i, iterations))): {
+  i++
+  sum = add(sum, i)
+}
+timer.stop()
+
+println(join("while loop time: ", timer.get()))
