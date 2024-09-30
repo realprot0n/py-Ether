@@ -1,5 +1,5 @@
 from json import loads
-from random import sample
+from random import sample, randint
 from math import pow, sqrt
 from tkinter import filedialog as fd
 from sys import setrecursionlimit
@@ -20,7 +20,7 @@ def config_stuff() -> None:
                 "join", "remove", "substring", "shuffle", "slice", "getchar", "repchar", # string stuf
                 "not", "and", "or", "xor", # boolean stuf
                 "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
-                "sleep", "msleep", "datetime", "timer", "start", "restart", "get", "stop"] # python stuff
+                "sleep", "msleep", "datetime", "timer", "start", "restart", "get", "stop", "randint"] # python stuff
   keyword_list = []
   
   Variable_list = []
@@ -959,6 +959,18 @@ def function_datetime() -> str:
   
   return str(datetime.now())
 
+
+def function_randint() -> tuple[str, str]:
+  check_for_kword("(")
+  floor = int(value_parser(string=False, integer=True, boolean=False)[0])
+  check_for_kword(",")
+  skip_kword_if_present(" ")
+  ceiling = int(value_parser(string=False, integer=True, boolean=False)[0])
+  check_for_kword(")")
+
+  return (randint(floor, ceiling), "Integer")
+  
+
 def function_not() -> str:
   check_for_kword("(")
   value = value_parser(string=False, integer=False, boolean=True)[0]
@@ -1108,6 +1120,7 @@ def function_parser() -> object:
   "msleep": function_msleep,
   "datetime": function_datetime,
   "timer": function_timer,
+  "randint": function_randint,
   
   #other funcs
   "println": function_println,
