@@ -8,6 +8,7 @@ my own programming language!! :D
 * Files in the Ether format will be denoted with the file ending ".etr".
 * The Config.json file is necessary for the interpreter to function.
 * Line breaks, spaces, and tabs are not neccessary for the program to run.
+  * An exception to this are comments.
 
 ## Config.json
 ### "Debug"
@@ -16,9 +17,10 @@ my own programming language!! :D
 	* Prints the whole Config.json file to the console upon loading it.
 	* Prints the program file's contents to the console upon loading.
 	* Prints the length of the file to the console.
+  * Prints the amount of time it took for the file to be parsed for keywords.
 	* Denotes when no errors occurred while parsing the file.
 	* Shows the list of keywords after the file has been parsed.
- 	* Prints to the console when `exit()` is used. 
+ 	* Prints to the console when `exit()` is used.
 ### "File_picker"
 * Enables or disables the file picker that appears when running Interpreter.py
 * If the value is set to 0, Interpreter.py uses the file stored in "Default_file"
@@ -41,8 +43,11 @@ my own programming language!! :D
 * Prints the exit index & where
 * n = A value of type string or int.
 ### Println(n)
-* Prints n to the console.
-* n = A value of any type
+* Prints n to the console in a line.
+* n = A value of any type.
+### Printnl(n)
+* Prints n to the console, without a new line.
+* n = A value of any type.
 ### Input(x)
 * Asks the user for an input, then returns that input.
 * Uses X as the stem when asking for the input.
@@ -189,9 +194,8 @@ my own programming language!! :D
 * Foo will take in two values as its inputs, bar and baz.
 	* Input variables NEED to be defined before creating the function.
 * Returns a value if `-> {type}` is included, otherwise it returns none.
-* No input variables as of now.
 * When called, the code inside the brackets will be run.
-	* Called with the format foo("bar", "baz")
+	* This example is called with the format `foo("bar", "baz")`
 ### Return x
 * Only used inside of functions.
 * Returns X out of the function.
@@ -204,3 +208,16 @@ my own programming language!! :D
 ### MSleep(n)
 * Pauses the program for n milliseconds.
 * N = A value of type integer
+### Timer
+#### timer.start()
+* Starts the timer, which runs until timer.stop() is called.
+#### timer.restart()
+* Restarts the timer.
+#### timer.stop()
+* Stops the timer.
+* The timer value is frozen at the ending value, so you can still use `timer.get()` after stopping the timer.
+#### timer.get()
+* Gets the current timer value.
+* Returns the current value as a string.
+### randint(x, y)
+* Returns a random integer between x & y, including both x & y.
