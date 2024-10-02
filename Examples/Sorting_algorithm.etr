@@ -1,0 +1,32 @@
+let: value = ""
+define sort args("value") -> str: {
+  let: i = 0
+  let: charOne = ""
+  let: charTwo = ""
+  let: sorted = True
+  while(True): {
+    sorted = True
+    fornumb(len(value), "i"): {
+      if(not(isequal(i, len(value)))): {
+        if(isgreater(getchar(value, i), getchar(value, add(i, 1)))): { # If a char is greater than the char in front of it
+          sorted = False
+          charOne = getchar(value, i)
+          charTwo = getchar(value, add(i, 1)
+          repchar(value, i, charTwo)
+          repchar(value, add(i, 1), charOne)
+          }
+        }
+      }
+  if(sorted): {
+    break
+    }
+  }
+  return value
+}
+
+let: string = "abcdefghijklmnop"
+println(join("Original string: ", string))
+let: shuffled = shuffle(string)
+println(join("Shuffled string: ", shuffled))
+
+println("Sorted string: " sort(shuffled))
