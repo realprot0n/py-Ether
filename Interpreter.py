@@ -17,7 +17,7 @@ def config_stuff() -> None:
                 "println", "exit", "throw", "let:", "input", "type", "integer", "string", "boolean", "none", "len", # variable stuf / other stuf
                 "define", "->", "return", "args", # function stuf
                 "if", "while", "fornumb", "break", "isequal", "isgreater", "islesser", # loops and logic stuf
-                "join", "remove", "substring", "shuffle", "slice", "getchar", "repchar", # string stuf
+                "join", "remove", "substring", "shuffle", "slice", "gtchar", "rpchar", # string stuf
                 "not", "and", "or", "xor", # boolean stuf
                 "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
                 "sleep", "msleep", "datetime", "timer", "start", "restart", "get", "stop", "randint"] # python stuff
@@ -1103,8 +1103,8 @@ def function_parser() -> object:
   "remove": functions_remove,
   "shuffle": function_shuffle,
   "slice": function_slice,
-  "getchar": function_getchar,
-  "repchar": function_repchar,
+  "gtchar": function_getchar,
+  "rpchar": function_repchar,
   
   # arithmetic functions
   "add": function_add,
