@@ -1,24 +1,24 @@
 let: value = ""
-define sort args("value") -> str: {
-  let: i = 0
-  let: charOne = ""
-  let: charTwo = ""
-  let: sorted = True
+let: i = 0
+let: charOne = ""
+let: charTwo = ""
+let: sorted = True
+define sort args("value") -> string: {
   while(True): {
     sorted = True
     fornumb(len(value), "i"): {
       if(not(isequal(i, len(value)))): {
-        if(isgreater(getchar(value, i), getchar(value, add(i, 1)))): { # If a char is greater than the char in front of it
+        if(isgreater(gtchar(value, i), gtchar(value, add(i, 1)))): { # If a char is greater than the char in front of it
           sorted = False
-          charOne = getchar(value, i)
-          charTwo = getchar(value, add(i, 1)
-          repchar(value, i, charTwo)
-          repchar(value, add(i, 1), charOne)
+          charOne = gtchar(value, i)
+          charTwo = gtchar(value, add(i, 1))
+          rpchar(value, i, charTwo)
+          rpchar(value, add(i, 1), charOne)
           }
         }
       }
-  if(sorted): {
-    break
+    if(sorted): {
+      break
     }
   }
   return value
@@ -26,7 +26,7 @@ define sort args("value") -> str: {
 
 let: string = "abcdefghijklmnop"
 println(join("Original string: ", string))
-let: shuffled = shuffle(string)
-println(join("Shuffled string: ", shuffled))
+let: shufStr = shuffle(string)
+println(join("Shuffled string: ", shufStr))
 
-println("Sorted string: " sort(shuffled))
+println(join("Sorted string: ", sort(shufStr)))
