@@ -1,10 +1,11 @@
-from json import loads
-from random import sample, randint
-from math import pow, sqrt
-from tkinter import filedialog as fd
-from sys import setrecursionlimit
-from datetime import datetime
-import time
+import time # For the time functions, such as sleep and timer functions
+from json import loads # To load the config file
+from typing import Union # To specify multiple potential return types in functions
+from math import pow, sqrt # For arethmetic functions
+from datetime import datetime # For the datetime function
+from random import sample, randint # For random functions
+from sys import setrecursionlimit # To make recursion in Ether easier without throwing an error
+from tkinter import filedialog as fd # For the user to input a specific file
 
 
 def config_stuff() -> None:
@@ -23,11 +24,9 @@ def config_stuff() -> None:
                 "sleep", "msleep", "datetime", "timer", "start", "restart", "get", "stop", "randint"] # python stuff
   keyword_list = []
   
-  Variable_list = []
-  Variable_dict = {}
+  Variable_list = []; Variable_dict = {}
   
-  Def_function_list = []
-  Def_function_dict = {}
+  Def_function_list = []; Def_function_dict = {}
   
   temp_val = ""
   i = -1
@@ -234,22 +233,22 @@ class UnexpectedType(Exception):
 
 
 class Timer:
-  def __init__(self):
+  def __init__(self) -> None:
     self.start_time = None
     self.is_running = False
   
-  def start(self):
+  def start(self) -> None:
     if not self.is_running:
       self.start_time = time.time()
       self.is_running = True
   
-  def restart(self):
+  def restart(self) -> None:
     self.start()
   
-  def get_time(self): # If the timer is stopped, it will return the value when stopped
+  def get_time(self) -> float: # If the timer is stopped, it will return the value when stopped
     return time.time() - self.start_time
   
-  def stop(self): # Stops the timer
+  def stop(self) -> None: # Stops the timer
     self.is_running = False
 
 
@@ -387,7 +386,7 @@ def value_parser(string: bool = False,
   exit(1)
 
 
-def variable_stuff() -> object:  
+def variable_stuff() -> Union[None, str]:  
   var_name = keyword_list[top_from_stack()]
   increment_top_of_stack()
   
@@ -401,12 +400,12 @@ def variable_stuff() -> object:
     if Variable_dict[var_name][1] == "Integer":
       return function_increment(var_name)
     else:
-      UnexpectedType(f"The increment function requires an integer.\nError location: {top_from_stack()}")
+      raise UnexpectedType(f"The increment function requires an integer.\nError location: {top_from_stack()}")
   elif keyword_list[top_from_stack()] == "--":
     if Variable_dict[var_name][1] == "Integer":
       return function_decrement(var_name)
     else:
-      UnexpectedType(f"The decrement function requires an integer.\nError location: {top_from_stack()}")
+      raise UnexpectedType(f"The decrement function requires an integer.\nError location: {top_from_stack()}")
 
 
 def variable_reassignment(var_name) -> None:
@@ -528,7 +527,7 @@ def function_integer() -> tuple[str, str]:
     else:
       return ("0", "Integer")
   elif val_type == "String":
-    if value.isnumeric():
+    if value.isdecimal():
       return (value, "Integer")
     else:
       raise ValueError("Expected a numeric value for int function.")
@@ -1063,7 +1062,7 @@ def function_let() -> None:
   Variable_dict[var_name] = value_1
 
 
-def function_parser() -> object:
+def function_parser() -> Union[None, str, tuple]:
   """The main way that functions are called. If a function returns None, the function has no return value."""
   
   global Def_function_list
