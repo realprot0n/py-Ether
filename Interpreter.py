@@ -511,9 +511,14 @@ def function_define_func() -> None:
   
   func_index: int = top_from_stack()
   Def_function_dict[func_name] = (func_index, return_type, func_arguments)
-  
-  while keyword_list[top_from_stack()-1] != "}":
+
+  curly_braces = 1
+  while curly_braces != 0:
     increment_top_of_stack()
+    if get_current_kword() == "{":
+      curly_braces += 1
+    elif get_current_kword() == "}":
+      curly_braces -= 1
 
 
 def function_integer() -> tuple[str, str]:
@@ -763,9 +768,15 @@ def function_if() -> None:
     while Keyword_list[top_from_stack()-1] != "}":
       increment_top_of_stack()
       function_parser()
+  
   else:
-    while Keyword_list[top_from_stack()-1] != "}":
+    curly_braces = 1
+    while curly_braces != 0:
       increment_top_of_stack()
+      if get_current_kword() == "{":
+        curly_braces += 1
+      elif get_current_kword() == "}":
+        curly_braces -= 1
 
 
 def function_break() -> None:
@@ -797,8 +808,13 @@ def function_while() -> None:
       
       if loop_break:
         loop_break = False
-        while Keyword_list[top_from_stack()-2] != "}":
+        curly_braces = 1
+        while curly_braces != 0:
           increment_top_of_stack()
+          if get_current_kword() == "{":
+            curly_braces += 1
+          elif get_current_kword() == "}":
+            curly_braces -= 1
         break
       
       set_top_of_stack(condition_index)
@@ -843,9 +859,14 @@ def function_fornumb() -> None:
     
     if loop_break:
       loop_break = False
-      while Keyword_list[top_from_stack()-1] != "}":
+      
+      curly_braces = 1
+      while curly_braces != 0:
         increment_top_of_stack()
-      increment_top_of_stack()
+        if get_current_kword() == "{":
+          curly_braces += 1
+        elif get_current_kword() == "}":
+          curly_braces -= 1
       break
     
     current_iterations += 1
@@ -1127,7 +1148,7 @@ def function_parser() -> Union[None, str, tuple]:
   "throw": function_throw
   }
   
-  keyword = keyword_list[top_from_stack()]
+  keyword: str = keyword_list[top_from_stack()]
   
   # Variable functions
   if keyword in Variable_list:
