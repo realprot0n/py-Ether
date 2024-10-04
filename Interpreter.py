@@ -306,7 +306,7 @@ def set_top_of_stack(number: int) -> None:
 
 def get_current_kword(index: int = None) -> str:
   """Replaces "keyword_list[top_from_stack()]", gets the current keyword."""
-  if index is None:
+  if index is None: # Default value if no index is given
     index = top_from_stack()
   return keyword_list[index]
 
@@ -317,8 +317,8 @@ def get_current_line(index: int) -> int:
   
   keywords = keyword_list[:index]
   lines: int = 1 # start at line 1
-  for i in keywords:
-    if i == "\n":
+  for kword in keywords:
+    if kword == "\n":
       lines += 1
   
   return lines
@@ -326,7 +326,7 @@ def get_current_line(index: int) -> int:
 def value_parser(string: bool = False,
                 integer: bool = False,
                 boolean: bool = False) -> tuple[str, str]:
-  """ Parses through keyword_list to find a value of type string, integer, or boolean.
+  """Parses through keyword_list to find a value of type string, integer, or boolean.
   The return tuple is formatted like this:
   (Value, Type)"""
   global keyword_list
