@@ -1,17 +1,25 @@
-let: x = "Hello, World!"
-let: y = x
-println(x)
-
+let: in = ""
+let: inTwo = ""
+let: replacement = ""
 let: i = 0
-fornumb(len(x), "i"): {
-  x = repchar(x, i, "_")
-  
-  println(x)
+# Define a function called "print_cool" that takes the arguments "in" and "replacement", returning nothing
+define print_cool args("in", "replacement") -> none: {
+  inTwo = in
+  println(in)
+  fornumb(len(in), "i"): {
+    in = rpchar(in, i, replacement)
+
+    println(in)
+  }
+
+  fornumb(len(in), ""): {
+    i--
+    in = rpchar(in, i, gtchar(inTwo, i))
+
+    println(in)
+  }
 }
 
-fornumb(len(x), ""): {
-  i--
-  x = repchar(x, i, getchar(y, i))
-  
-  println(x)
-}
+print_cool("test", "_")
+println("")
+print_cool("sigma", "/")
