@@ -1,0 +1,97 @@
+# Example of a simple bubble sort algorithm.
+
+let: charOne = ""
+let: charTwo = ""
+let: condition = False
+let: value = ""
+let: val = ""
+let: i = 0
+let: index = 0
+let: plusOne = 0
+let: sorted = True
+define sort args("value") -> string: {
+  # Put the lowest value at the end so there aren't any string errors
+  val = join(value, "~")
+
+  while(True): {
+    sorted = True
+    
+    fornumb(len(value), "i"): {
+      index = i
+      plusOne = add(index, 1)
+
+      condition = isgreater(gtchar(val, index), gtchar(val, plusOne))
+
+      if(condition): {
+        sorted = False
+
+        charOne = gtchar(val, index)
+        charTwo = gtchar(val, plusOne)
+        
+        val = rpchar(val, index, charTwo)
+        val = rpchar(val, plusOne, charOne)
+      }
+    }
+    if(sorted): {
+      break
+    }
+  }
+  val = slice(val, 0, subtr(len(val), 1), 1)
+  return val
+}
+
+# Repeats an input string N amount of times
+let: repetitions = 0
+let: repStr = ""
+let: rString = ""
+define repeatNTimes args("repStr", "repetitions") -> string: {
+  rString = ""
+
+  fornumb(repetitions, ""): {
+    rString = join(rString, repStr)
+  }
+
+  return rString
+}
+
+let: inpStr = "abcdefghijklmnopqrstuvwxyz"
+
+let: strRepAmount = 15
+# Higher repetition values -> exponentially larger sorting time
+# str length -> seconds
+# 1 -> ~0.06
+# 2 -> ~0.28
+# 3 -> ~0.6
+# 4 -> ~1.1
+# 5 -> ~1.75
+# 10 -> ~7.1
+# 15 -> ~16
+# 20 -> ~30
+# 30 -> ~63
+# 40 -> ~117
+# 100 -> ~798
+
+# Estimated regression polynomial: y = 0.00013x^3 + 0.06579x^2 + 0.06666x - 0.1407
+# Using this polynomial, we can estimate the following values for an input string's length:
+# str length -> estimated seconds
+# 500 ->    ~32730.6893
+# 1000 ->   ~195856.5193
+# 10000 ->  ~136579666.459
+# 100000 -> ~130657906670
+# 1000000 -> 130065790070000
+
+# As you can tell, bubble sort sucks.
+# Can someone please remind me to make quicksort in the future?
+
+let: repeatedString = repeatNTimes(inpStr, strRepAmount)
+
+let: strShuffled = shuffle(repeatedString)
+
+println(join("Original string: ", inpStr))
+println(join("Repeated string: ", repeatedString))
+println(join("Shuffled string: ", strShuffled))
+
+timer.start()
+println(join("Sorted string:   ", sort(strShuffled)))
+timer.stop()
+println(join("Time took: ", timer.get()))
