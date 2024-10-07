@@ -8,12 +8,13 @@ from sys import setrecursionlimit # To make recursion in Ether easier without th
 from tkinter import filedialog as fd # For the user to input a specific file
 
 
+global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break, _timer
 def config_stuff() -> None:
   """Sets up configuration file and global variables"""
   global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break, _timer
-  
+
   setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make without throwing an error
-  
+
   Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "--", "True", "False", # symbols
                 "println", "exit", "throw", "let:", "input", "type", "integer", "string", "boolean", "none", "len", # variable stuf / other stuf
                 "define", "->", "return", "args", # function stuf
@@ -23,17 +24,17 @@ def config_stuff() -> None:
                 "add", "subtr", "multi", "divi", "pow", "mod", "sqrt", # arethmetic stuf
                 "sleep", "msleep", "datetime", "timer", "start", "restart", "get", "stop", "randint"] # python stuff
   keyword_list = []
-  
+
   Variable_list = []; Variable_dict = {}
-  
+
   Def_function_list = []; Def_function_dict = {}
-  
+
   temp_val = ""
   i = -1
-  
+
   loop_break = False
   _timer = Timer()
-  
+
   try:
     with open("config.json", "r") as config_f:
       config_file = config_f.read()
@@ -44,7 +45,7 @@ Please create a file named "config.json" in the "Ether interpreter" directory.
 should be inside the file.
 Using a default config file.""")
     config_file = '{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
-  
+
   config_file = loads(config_file) # Turns json file into python dictionary
   if config_file["Debug"] == 1:
     print(f"--- Config file contents: ---\n{config_file}")
@@ -58,11 +59,11 @@ def file_setup() -> None:
   else:
     # path = "Program.spp"
     path = config_file["Default_file"]
-  
+
   if not(path.endswith(".etr")):
     print("File needs to have \".etr\" extension.")
     exit(1)
-  
+
   try:
     with open(path, "r") as file_details:
       file = file_details.read()
@@ -72,11 +73,11 @@ def file_setup() -> None:
 Please check \"Config.json\" to make sure the \"Auto_picker_file\" value is correct.
 If you want to choose the file when running, set \"File_picker\" equal to 1.""")
       exit(1)
-    
+
     print("File not found")
     exit(1)
-  
-  
+
+
   if config_file["Debug"] == 1:
     print(f"---Program file contents: ---\n{file}")
     print(f"---File is {len(file)} character(s) long---")
@@ -143,7 +144,7 @@ def keyword_parser() -> list[str]:
       if file[i + 1] == " ":
         keyword_list.append(" ")
         i += 1
-      
+
       while temp_val.join(file[i+1]).isidentifier():
         i += 1
         temp_val += file[i]
@@ -163,7 +164,7 @@ def keyword_parser() -> list[str]:
         temp_val += file[i]
       keyword_list.append(temp_val)
       temp_val = ""
-    
+
     # Numbers
     if temp_val.isnumeric():
       while file[i + 1].isnumeric():
@@ -171,7 +172,7 @@ def keyword_parser() -> list[str]:
         temp_val += file[i]
       keyword_list.append(temp_val)
       temp_val = ""
-    
+
     # Strings
     if temp_val == '"' or temp_val == "'":
       quote_style = temp_val
@@ -184,24 +185,24 @@ def keyword_parser() -> list[str]:
       i += 1
       keyword_list.append(quote_style)
       temp_val = ""
-    
+
     # Keywords
     if temp_val in Keyword_key:
       keyword_list.append(temp_val)
       temp_val = ""
-    
+
     # Variables
     if temp_val in Variable_list:
       if not (file[i + 1].isalnum()):
         keyword_list.append(temp_val)
         temp_val = ""
-    
+
     # Functions
     if temp_val in Def_function_list:
       if not (file[i + 1].isalnum()):
         keyword_list.append(temp_val)
         temp_val = ""
-    
+
     # End of file check
     if len(file) <= i + 1:
       if temp_val != "":
@@ -217,7 +218,7 @@ def keyword_parser() -> list[str]:
 ###############################################################
 
 
-class KeywordExpectedError(Exception): 
+class KeywordExpectedError(Exception):
   """The error that gets thrown when a keyword is expected in Keyword_list."""
   ...
 
@@ -236,33 +237,33 @@ class Timer:
   def __init__(self) -> None:
     self.start_time = None
     self.is_running = False
-  
+
   def start(self) -> None:
     if not self.is_running:
       self.start_time = time.time()
       self.is_running = True
-  
+
   def restart(self) -> None:
     self.start()
-  
+
   def get_time(self) -> float: # If the timer is stopped, it will return the value when stopped
     return time.time() - self.start_time
-  
+
   def stop(self) -> None: # Stops the timer
     self.is_running = False
 
 
 def check_for_kword(value: str) -> None:
   """Checks for [value] being equal to the next keyword. If a value is not found, an error is thrown."""
-  
+
   increment_top_of_stack()
   # print(Keyword_list[top_from_stack()])
   if Keyword_list[top_from_stack()] == value:
     return
   else:
-    Err_len = config_file["Error_length"]
-    Error_keywords = "".join(Keyword_list[top_from_stack()-Err_len:top_from_stack()-1])
-    print(f"Behind the error: {Error_keywords}")
+    err_len = config_file["Error_length"]
+    error_keywords = "".join(Keyword_list[top_from_stack()-err_len:top_from_stack()-1])
+    print(f"Behind the error: {error_keywords}")
     raise KeywordExpectedError(f"Expected '{value}' at line {get_current_line(top_from_stack())} but found \"{Keyword_list[top_from_stack()]}\"")
 
 
@@ -271,7 +272,7 @@ def skip_kword_if_present(value: str) -> bool:
   
   returns:
     True if {value} is found in Keyword_list, else returns False."""
-  
+
   if Keyword_list[top_from_stack()+1] == value:
     increment_top_of_stack()
     return True
@@ -283,7 +284,7 @@ def top_from_stack() -> int:
   """
   Replaces "stack[len(stack)-1]", gets the value from the top of the stack.
   """
-  
+
   return stack[len(stack)-1]
 
 
@@ -291,7 +292,7 @@ def increment_top_of_stack(number: int = 1) -> None:
   """
   Replaces "stack[len(stack)-1] += N", increments the value by [number].
   """
-  
+
   stack[len(stack)-1] += number
   return
 
@@ -300,7 +301,7 @@ def set_top_of_stack(number: int) -> None:
   """
   Replaces "stack[len(stack)-1] = N", sets the value at the top of the stack to [number].
   """
-  
+
   stack[len(stack)-1] = number
 
 
@@ -311,17 +312,26 @@ def get_current_kword(index: int = None) -> str:
   return keyword_list[index]
 
 
-def get_current_line(index: int) -> int:
+def get_current_line(index: int = None, get_chars: bool = False) -> Union[int, tuple[int, int]]:
   """Used for error messages, gets the line currently being executed."""
   global keyword_list
-  
+  if index is None:
+    index = top_from_stack()
+
   keywords = keyword_list[:index]
   lines: int = 1 # start at line 1
+  chars: int = 0
   for kword in keywords:
+    if get_chars:
+      chars += 1
     if kword == "\n":
       lines += 1
-  
-  return lines
+      chars = 0
+  if get_chars:
+    return (lines, chars)
+  else:
+    return lines
+
 
 def value_parser(string: bool = False,
                 integer: bool = False,
@@ -330,32 +340,32 @@ def value_parser(string: bool = False,
   The return tuple is formatted like this:
   (Value, Type)"""
   global keyword_list
-  
+
   increment_top_of_stack()
   keyword = keyword_list[top_from_stack()]
-  
+
   # Variable parsing
   if keyword in Variable_list:
     var_val = Variable_dict.get(keyword)
-    
+
     if (var_val[1] == "Integer") and integer:
       return var_val
     elif (var_val[1] == "String") and string:
       return var_val
     elif (var_val[1] == "Boolean") and boolean:
       return var_val
-  
+
   # Literal values
   elif keyword.isnumeric() and integer:
     return (keyword, "Integer")
-  
+
   elif (keyword == "'" or keyword == "\"") and string:
     increment_top_of_stack(2)
     return (Keyword_list[top_from_stack() - 1], "String")
-  
+
   elif (keyword == "False" or keyword == "True") and boolean:
     return (keyword, "Boolean")
-  
+
   # Function Parsing
   function_ret = function_parser()
   if function_ret is not None:
@@ -367,7 +377,7 @@ def value_parser(string: bool = False,
       return (function_ret, "Boolean")
     elif string:
       return (str(function_ret), "String")
-  
+
   params = ""
   # Error Handling
   if string:
@@ -377,8 +387,8 @@ def value_parser(string: bool = False,
   if boolean:
     params = params + "bool, "
   if params == "":
-    params = params + "none" # not sure if this will ever get used but its nice to have it just in case
-  
+    params = params + "none" # not sure if this will ever get used, but it's nice to have it just in case
+
   print(f"Error: Expected {params}at line {get_current_line(top_from_stack())}, but instead found {keyword}")
   Err_len = config_file["Error_length"]
   Error_keywords = "".join(Keyword_list[top_from_stack()-Err_len:top_from_stack()-1])
@@ -386,16 +396,16 @@ def value_parser(string: bool = False,
   exit(1)
 
 
-def variable_stuff() -> Union[None, str]:  
+def variable_stuff() -> Union[None, str]:
   var_name = keyword_list[top_from_stack()]
   increment_top_of_stack()
-  
+
   if keyword_list[top_from_stack()+1] == "=":
     increment_top_of_stack()
     variable_reassignment(var_name)
   elif keyword_list[top_from_stack()] == "=":
     variable_reassignment(var_name)
-  
+
   elif keyword_list[top_from_stack()] == "++":
     if Variable_dict[var_name][1] == "Integer":
       return function_increment(var_name)
@@ -413,7 +423,7 @@ def variable_reassignment(var_name) -> None:
   skip_kword_if_present(" ")
   value_1 = value_parser(string=True, integer=True, boolean=True)
   # check_for_kword(";")
-  
+
   Variable_dict[var_name] = value_1
 
 
@@ -430,63 +440,63 @@ def function_increment(var_name) -> str:
 
 def function_stuff() -> tuple[str, str]:
   func_name = keyword_list[top_from_stack()]
-  
+
   check_for_kword("(")
   if len(Def_function_dict[func_name][2]) > 0:
     input_args = []
-    
+
     for _ in range(len(Def_function_dict[func_name][2])):
       input_args.append(value_parser(string=True, integer=True, boolean=True))
       if keyword_list[top_from_stack()+1] != ")":
         check_for_kword(",")
         skip_kword_if_present(" ")
-  
+
     for arg in range(len(input_args)):
       Variable_dict[Def_function_dict[func_name][2][arg]] = input_args[arg]
   check_for_kword(")")
-  
+
   stack.append(Def_function_dict[func_name][0])
-  
-  while ((keyword_list[top_from_stack()] != "return") and
-        (keyword_list[top_from_stack()] != "}")):
+
+  while keyword_list[top_from_stack()] != "return":
+    # and (keyword_list[top_from_stack()] != "}")):
+    # that's it, im not dealing with all the problems counting brackets as the end of a function gives me.
     increment_top_of_stack()
     function_parser()
-  
+
   if Def_function_dict[func_name][1] == "none":
     function_return = ("none", "none")
   else:
     # while keyword_list[top_from_stack()] != "return":
     #   increment_top_of_stack(-1)
     check_for_kword(" ") # what the FUCK
-    # okay i found the problem; its with using the fornumb function inside of user defined functions
-    # never mind its a problem with all functions with brackets surrounding code
-    # I GET IT; its a problem with every bracketed fn because the code thinks the bracket is the ending bracket!!!
+    # okay I found the problem; it's with using the fornumb function inside of user defined functions
+    # never mind it's a problem with all functions with brackets surrounding code
+    # I GET IT; it's a problem with every bracketed fn because the code thinks the bracket is the ending bracket!!!
     function_return = value_parser(string=True, integer=True, boolean=True)
   func_return_type = function_return[1]
-  
+
   stack.pop()
-  if (Def_function_dict[func_name][1] == func_return_type.lower()):
-    return function_return 
+  if Def_function_dict[func_name][1] == func_return_type.lower():
+    return function_return
   else:
     raise UnexpectedType(f"Expected type {Def_function_dict[func_name][1]} to return from {func_name}, but got {func_return_type} instead.")
 
 
 def function_define_func() -> None:
-  
+
   check_for_kword(" ")
   increment_top_of_stack()
   func_name: str = keyword_list[top_from_stack()]
   # check_for_kword(")")
   # check_for_kword("(")
-  
+
   if func_name in Def_function_dict:
     print(f"Error: Function {func_name} already defined.")
     exit(1)
-  
-  # TODO: Add support for input values, in the format args("value", "value"...)
+
   if skip_kword_if_present(" ") and skip_kword_if_present("args"): # Checks for " " and "args"
     check_for_kword("(")
-  
+
     func_arguments: list = []
     while keyword_list[top_from_stack()] != ")":
       func_arguments.append(value_parser(string=True, integer=False, boolean=False)[0])
@@ -497,18 +507,18 @@ def function_define_func() -> None:
         increment_top_of_stack()
   else:
     increment_top_of_stack(-1)
-  
+
   if skip_kword_if_present(" ") and skip_kword_if_present("->"): # Checks for " " and "->"
     skip_kword_if_present(" ")
     increment_top_of_stack()
     return_type: str = keyword_list[top_from_stack()]
   else:
     return_type: str = "none"
-  
+
   check_for_kword(":")
   skip_kword_if_present(" ")
   check_for_kword("{")
-  
+
   func_index: int = top_from_stack()
   Def_function_dict[func_name] = (func_index, return_type, func_arguments)
 
@@ -525,7 +535,7 @@ def function_integer() -> tuple[str, str]:
   check_for_kword("(")
   value, val_type = value_parser(string=True, integer=True, boolean=True)
   check_for_kword(")")
-  
+
   if val_type == "Boolean":
     if value == "True":
       return ("1", "Integer")
@@ -544,7 +554,7 @@ def function_string() -> tuple[str, str]:
   check_for_kword("(")
   value = value_parser(string=True, integer=True, boolean=True)[0]
   check_for_kword(")")
-  
+
   return (value, "String")
 
 
@@ -552,7 +562,7 @@ def function_boolean() -> tuple[str, str]:
   check_for_kword("(")
   value, val_type = value_parser(string=True, integer=True, boolean=True)
   check_for_kword(")")
-  
+
   if val_type == "Boolean":
     return (value, "Boolean")
   elif val_type == "Integer":
@@ -571,7 +581,7 @@ def function_len() -> str:
   check_for_kword("(")
   value = value_parser(string=True, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(len(value))
 
 
@@ -579,7 +589,7 @@ def function_println() -> None:
   check_for_kword("(")
   value_1 = value_parser(string=True, integer=True, boolean=True)[0]
   check_for_kword(")")
-  
+
   print(value_1)
 
 
@@ -587,17 +597,17 @@ def exit_program() -> None:
   check_for_kword("(")
   exit_code = value_parser(string=True, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   if config_file["Debug"] == 1:
     print(f"---Program exited at index {top_from_stack()}, with exit code \"{exit_code}\"---")
   exit(exit_code)
 
 def function_throw() -> None:
-  # throw is a funnier word than raise so thats why i used it
+  # throw is a funnier word than raise so that's why I used it
   check_for_kword("(")
   error_code = value_parser(string=True, integer=False, boolean=False)[0]
   check_for_kword(")")
-  
+
   raise UserDefinedError(error_code)
 
 def function_join() -> str:
@@ -607,7 +617,7 @@ def function_join() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=True, integer=True, boolean=True)[0]
   check_for_kword(")")
-  
+
   return str(value_1) + str(value_2)
 
 
@@ -626,7 +636,7 @@ def function_remove_substring() -> str:
   skip_kword_if_present(" ")
   substring = value_parser(string=True, integer=False, boolean=False)[0]
   check_for_kword(")")
-  
+
   return value.replace(substring, "")
 
 
@@ -634,7 +644,7 @@ def function_shuffle() -> str:
   check_for_kword("(")
   value = value_parser(string=True, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return "".join(sample(value, len(value)))
 
 
@@ -651,7 +661,7 @@ def function_slice() -> str:
   skip_kword_if_present(" ")
   step = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return value[int(start):int(end):int(step)]
 
 
@@ -662,7 +672,7 @@ def function_getchar() -> str:
   skip_kword_if_present(" ")
   index = int(value_parser(string=False, integer=True, boolean=False)[0])
   check_for_kword(")")
-  
+
   return string[index]
 
 
@@ -676,7 +686,7 @@ def function_repchar() -> str:
   skip_kword_if_present(" ")
   replacement = value_parser(string=True, integer=False, boolean=False)[0]
   check_for_kword(")")
-  
+  # print(f"{string[:index]}{replacement}{string[index+1:]}")
   return f"{string[:index]}{replacement}{string[index+1:]}"
 
 
@@ -687,7 +697,7 @@ def function_add() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(int(value_1) + int(value_2))
 
 
@@ -698,7 +708,7 @@ def function_subtr() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(int(value_1) - int(value_2))
 
 
@@ -709,7 +719,7 @@ def function_multi() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(int(value_1) * int(value_2))
 
 
@@ -720,7 +730,7 @@ def function_divi() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(int(value_1) // int(value_2))
 
 
@@ -731,7 +741,7 @@ def function_pow() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   # Int() is used before string conversion because it rounds the value,
   # as pow() returns a floating point value.
   return str(int(pow(int(value_1), int(value_2))))
@@ -744,7 +754,7 @@ def function_mod() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(int(value_1) % int(value_2))
 
 
@@ -752,12 +762,12 @@ def function_sqrt() -> str:
   check_for_kword("(")
   value = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   return str(int(sqrt(int(value))))
 
 def function_if() -> None:
   global Keyword_list, stack
-  
+
   check_for_kword("(")
   value_1 = value_parser(string=False, integer=False, boolean=True)[0]
   check_for_kword(")")
@@ -768,7 +778,7 @@ def function_if() -> None:
     while Keyword_list[top_from_stack()-1] != "}":
       increment_top_of_stack()
       function_parser()
-  
+
   else:
     curly_braces = 1
     while curly_braces != 0:
@@ -790,7 +800,7 @@ def function_break() -> None:
 
 def function_while() -> None:
   global Keyword_list, loop_break
-  
+
   check_for_kword("(")
   condition_index = int(top_from_stack())
   condition = value_parser(string=False, integer=False, boolean=True)[0]
@@ -805,7 +815,7 @@ def function_while() -> None:
         function_parser()
         if loop_break:
           break
-      
+
       if loop_break:
         loop_break = False
         curly_braces = 1
@@ -816,26 +826,26 @@ def function_while() -> None:
           elif get_current_kword() == "}":
             curly_braces -= 1
         break
-      
+
       set_top_of_stack(condition_index)
       condition = value_parser(string=False, integer=False, boolean=True)[0]
-      
+
       if condition == "True":
         pass
       else:
         break
-  
+
   else:
     while Keyword_list[top_from_stack()-1] != "}":
       increment_top_of_stack()
-  
+
   while get_current_kword(top_from_stack()-1) != "}":
     increment_top_of_stack() # HOW DID THIS FIX IT????? WHAT THE FUCK??
 
 
 def function_fornumb() -> None:
   global Keyword_list, Variable_list, loop_break
-  
+
   check_for_kword("(")
   iteration_amount: int = int(value_parser(string=False, integer=True, boolean=False)[0])
   check_for_kword(",")
@@ -844,9 +854,9 @@ def function_fornumb() -> None:
   check_for_kword(")")
   check_for_kword(":")
   skip_kword_if_present(" ")
-  
+
   Variable_dict[var_name] = ("0", "Integer")
-  
+
   current_iterations = 0
   loop_index: int = top_from_stack()
   check_for_kword("{")
@@ -856,10 +866,10 @@ def function_fornumb() -> None:
       function_parser()
       if loop_break:
         break
-    
+
     if loop_break:
       loop_break = False
-      
+
       curly_braces = 1
       while curly_braces != 0:
         increment_top_of_stack()
@@ -868,7 +878,7 @@ def function_fornumb() -> None:
         elif get_current_kword() == "}":
           curly_braces -= 1
       break
-    
+
     current_iterations += 1
     Variable_dict[var_name] = (str(current_iterations), "Integer")
     if iteration_amount <= current_iterations:
@@ -885,7 +895,7 @@ def function_isequal() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=True, integer=True, boolean=True)[0]
   check_for_kword(")")
-  
+
   return "True" if value_1 == value_2 else "False"
 
 
@@ -896,7 +906,7 @@ def function_isgreater() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=True, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   try:
     return "True" if int(value_1) > int(value_2) else "False"
   except ValueError:
@@ -910,7 +920,7 @@ def function_islesser() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=True, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   try:
     return "True" if int(value_1) < int(value_2) else "False"
   except ValueError:
@@ -921,7 +931,7 @@ def function_sleep() -> None:
   check_for_kword("(")
   value = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   time.sleep(int(value))
 
 
@@ -929,7 +939,7 @@ def function_msleep() -> None:
   check_for_kword("(")
   value = value_parser(string=False, integer=True, boolean=False)[0]
   check_for_kword(")")
-  
+
   time.sleep(int(value) / 1000)
 
 
@@ -948,35 +958,35 @@ def function_timer() -> object:
 def function_timerStart() -> None:
   check_for_kword("(")
   check_for_kword(")")
-  
+
   _timer.start()
 
 
 def function_timerGet() -> str:
   check_for_kword("(")
   check_for_kword(")")
-  
+
   return str(_timer.get_time())
 
 
 def function_timerStop() -> None:
   check_for_kword("(")
   check_for_kword(")")
-  
+
   _timer.stop()
 
 
 def function_timerRestart() -> None:
   check_for_kword("(")
   check_for_kword(")")
-  
+
   _timer.restart()
 
 
 def function_datetime() -> str:
   check_for_kword("(")
   check_for_kword(")")
-  
+
   return str(datetime.now())
 
 
@@ -989,13 +999,13 @@ def function_randint() -> tuple[str, str]:
   check_for_kword(")")
 
   return (randint(floor, ceiling), "Integer")
-  
+
 
 def function_not() -> str:
   check_for_kword("(")
   value = value_parser(string=False, integer=False, boolean=True)[0]
   check_for_kword(")")
-  
+
   if value == "True":
     return "False"
   elif value == "False":
@@ -1025,7 +1035,7 @@ def function_or() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=False, boolean=True)[0]
   check_for_kword(")")
-  
+
   if value_1 == "True" or value_2 == "True":
     return "True"
   else:
@@ -1039,8 +1049,8 @@ def function_xor() -> str:
   skip_kword_if_present(" ")
   value_2 = value_parser(string=False, integer=False, boolean=True)[0]
   check_for_kword(")")
-  
-  # XOR function i took from the first result on google
+
+  # XOR function I took from the first result on Google
   if (((value_1 == "True") and (value_2 == "False")) or
     ((value_1 == "False") and (value_2 == "True"))):
     return "True"
@@ -1052,7 +1062,7 @@ def function_input() -> str:
   check_for_kword("(")
   value_1 = value_parser(string=True, integer=True, boolean=True)[0]
   check_for_kword(")")
-  
+
   return input(value_1)
 
 
@@ -1060,34 +1070,34 @@ def function_type() -> str:
   check_for_kword("(")
   val_type = value_parser(string=True, integer=True, boolean=True)[1]
   check_for_kword(")")
-  
+
   return val_type
 
 
 def function_let() -> None:
   global Variable_dict
-  
+
   skip_kword_if_present(" ")
   increment_top_of_stack()
   if Keyword_list[top_from_stack()] in Variable_list:
     var_name = Keyword_list[top_from_stack()]
   else:
-    print(f"Error: Expected a variable name at keyword {top_from_stack()}")
+    print(f"Error: Expected a variable name at line {get_current_line()}")
     exit(1)
   skip_kword_if_present(" ")
   check_for_kword("=")
   skip_kword_if_present(" ")
   value_1 = value_parser(string=True, integer=True, boolean=True)
   # check_for_kword(";")
-  
+
   Variable_dict[var_name] = value_1
 
 
 def function_parser() -> Union[None, str, tuple]:
   """The main way that functions are called. If a function returns None, the function has no return value."""
-  
+
   global Def_function_list
-  
+
   function_dict = { # Does this increase the time it takes to run?
   # Variable functions
   "let:": function_let,
@@ -1097,27 +1107,27 @@ def function_parser() -> Union[None, str, tuple]:
   "string": function_string,
   "boolean": function_boolean,
   "len": function_len,
-  
+
   # User defined functions
   "define": function_define_func,
-  
+
   # Comparison functions
   "isequal": function_isequal,
   "isgreater": function_isgreater,
   "islesser": function_islesser,
   "if": function_if,
-  
+
   # Loop functions
   "while": function_while,
   "fornumb": function_fornumb,
   "break": function_break,
-  
+
   # Boolean functions
   "not": function_not,
   "and": function_and,
   "or": function_or,
   "xor": function_xor,
-  
+
   # String functions
   "join": function_join,
   "remove": functions_remove,
@@ -1125,7 +1135,7 @@ def function_parser() -> Union[None, str, tuple]:
   "slice": function_slice,
   "gtchar": function_getchar,
   "rpchar": function_repchar,
-  
+
   # arithmetic functions
   "add": function_add,
   "subtr": function_subtr,
@@ -1134,22 +1144,22 @@ def function_parser() -> Union[None, str, tuple]:
   "mod": function_mod,
   "pow": function_pow,
   "sqrt": function_sqrt,
-  
+
   # python module stuf
   "sleep": function_sleep,
   "msleep": function_msleep,
   "datetime": function_datetime,
   "timer": function_timer,
   "randint": function_randint,
-  
+
   #other funcs
   "println": function_println,
   "exit": exit_program,
   "throw": function_throw
   }
-  
+
   keyword: str = keyword_list[top_from_stack()]
-  
+
   # Variable functions
   if keyword in Variable_list:
     return variable_stuff()
@@ -1163,7 +1173,7 @@ def run_program() -> None:
   """The main loop for the interpreter."""
   global Keyword_list, stack
   stack = [-1] # the stack is a list of integers, use stack.append() and stack.pop() to add or remove values from it
-  
+
   while True:
     increment_top_of_stack()
     if top_from_stack() >= len(Keyword_list):
@@ -1178,7 +1188,7 @@ def run_program() -> None:
 
 def main() -> None:
   global Keyword_list
-  
+
   config_stuff()
   file_setup()
   Keyword_list = keyword_parser()
