@@ -1,0 +1,14 @@
+# Example of a quick sort algorithm, using recursion.
+
+let: QsString = ""
+let: QsReturn = ""
+let: QsIsChar = False
+define quick_sort args("QsString") -> string: {
+  QsIsChar = isequal(len(QsString), 1)
+  if(QsIsChar): {
+    QsReturn = Qsstring
+  } if(not(QsIsChar)): {
+    
+  }
+  return QsReturn
+}
