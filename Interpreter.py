@@ -5,7 +5,7 @@ from math import pow, sqrt # For arethmetic functions
 from datetime import datetime # For the datetime function
 from random import sample, randint # For random functions
 from sys import setrecursionlimit # To make recursion in Ether easier without throwing an error
-from tkinter import filedialog as fd # For the user to input a specific file
+from tkinter import filedialog as fd # For the user to input a specific file using the file dialog.
 
 
 global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break, _timer
@@ -16,7 +16,7 @@ def config_stuff() -> None:
   setrecursionlimit(100_000) # Set the recursion limit to 100k; so recursion is easier to make without throwing an error
 
   Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "--", "True", "False", # symbols
-                "println", "exit", "throw", "let:", "input", "type", "integer", "string", "boolean", "none", "len", # variable stuf / other stuf
+                "println", "printvl", "printnl", "exit", "throw", "let:", "input", "type", "integer", "string", "boolean", "none", "len", # variable stuf / other stuf
                 "define", "->", "return", "args", # function stuf
                 "if", "while", "fornumb", "break", "isequal", "isgreater", "islesser", # loops and logic stuf
                 "join", "remove", "substring", "shuffle", "slice", "gtchar", "rpchar", # string stuf
@@ -156,7 +156,7 @@ def keyword_parser() -> list[str]:
     # Comments
     if temp_val == "#":
       # Since python automatically skips every other check in an or statement when the first one is true,
-      # putting the end of file check first removes the risk of index errors when parsing for keywords.
+      # putting the end of file check first removes the risk of index errors when parsing comments.
       while not (i+1 >= len(file)
                 or file[i+1] == "\n"
                 or file[i+1] == "#"):
@@ -309,6 +309,7 @@ def get_current_kword(index: int = None) -> str:
   """Replaces "keyword_list[top_from_stack()]", gets the current keyword."""
   if index is None: # Default value if no index is given
     index = top_from_stack()
+  
   return keyword_list[index]
 
 
@@ -483,17 +484,17 @@ def function_stuff() -> tuple[str, str]:
 
 
 def function_define_func() -> None:
-
   check_for_kword(" ")
   increment_top_of_stack()
   func_name: str = keyword_list[top_from_stack()]
   # check_for_kword(")")
   # check_for_kword("(")
 
-  if func_name in Def_function_dict:
-    print(f"Error: Function {func_name} already defined.")
-    exit(1)
-
+  # I dont think this is needed.
+  # if func_name in Def_function_dict:
+  #   print(f"Error: Function {func_name} already defined.")
+  #   exit(1)
+  
   if skip_kword_if_present(" ") and skip_kword_if_present("args"): # Checks for " " and "args"
     check_for_kword("(")
 
@@ -545,7 +546,7 @@ def function_integer() -> tuple[str, str]:
     if value.isdecimal():
       return (value, "Integer")
     else:
-      raise ValueError("Expected a numeric value for int function.")
+      raise ValueError(f"Expected a decimal value for int function at line {get_current_line(get_chars= True)[0]}, character {get_current_line(get_chars= True)[1]}.")
   elif val_type == "Integer":
     return (value, "Integer")
 
@@ -593,14 +594,33 @@ def function_println() -> None:
   print(value_1)
 
 
+def function_printve() -> None:
+  check_for_kword("(")
+  string = value_parser(string=True, integer=True, boolean=True)[0]
+  check_for_kword(",")
+  skip_kword_if_present(" ")
+  ending = value_parser(string=True, integer=False, boolean=False)[0]
+  check_for_kword(")")
+
+  print(string, end = ending)
+
+def function_printnl() -> None:
+  check_for_kword("(")
+  value_1 = value_parser(string=True, integer=True, boolean=True)[0]
+  check_for_kword(")")
+
+  print(value_1, end = "")
+
+
 def exit_program() -> None:
   check_for_kword("(")
   exit_code = value_parser(string=True, integer=True, boolean=False)[0]
   check_for_kword(")")
 
   if config_file["Debug"] == 1:
-    print(f"---Program exited at index {top_from_stack()}, with exit code \"{exit_code}\"---")
+    print(f"---Program exited at line {get_current_line(get_chars= True)[0]}, with exit code \"{exit_code}\"---")
   exit(exit_code)
+
 
 def function_throw() -> None:
   # throw is a funnier word than raise so that's why I used it
@@ -609,6 +629,7 @@ def function_throw() -> None:
   check_for_kword(")")
 
   raise UserDefinedError(error_code)
+
 
 def function_join() -> str:
   check_for_kword("(")
@@ -686,7 +707,7 @@ def function_repchar() -> str:
   skip_kword_if_present(" ")
   replacement = value_parser(string=True, integer=False, boolean=False)[0]
   check_for_kword(")")
-  # print(f"{string[:index]}{replacement}{string[index+1:]}")
+  
   return f"{string[:index]}{replacement}{string[index+1:]}"
 
 
@@ -1098,64 +1119,66 @@ def function_parser() -> Union[None, str, tuple]:
 
   global Def_function_list
 
-  function_dict = { # Does this increase the time it takes to run?
+  function_dict = { # Does this increase the time it takes to run if its inside the function parser?
   # Variable functions
-  "let:": function_let,
-  "type": function_type,
-  "input": function_input,
-  "integer": function_integer,
-  "string": function_string,
-  "boolean": function_boolean,
-  "len": function_len,
+  "let:": function_let, # Defines variables.
+  "type": function_type, # Returns the type of N.
+  "input": function_input, # Gets input from the console.
+  "integer": function_integer, # Returns the integer equivelent of N.
+  "string": function_string, # Returns the string equivelent of N.
+  "boolean": function_boolean, # Returns the boolean equivelent of N
+  "len": function_len, # Returns the length of N
 
   # User defined functions
-  "define": function_define_func,
+  "define": function_define_func, # Defines a function with arguments and a return type.
 
   # Comparison functions
-  "isequal": function_isequal,
-  "isgreater": function_isgreater,
-  "islesser": function_islesser,
-  "if": function_if,
+  "isequal": function_isequal, # If X equals Y, return True. Else, return False.
+  "isgreater": function_isgreater, # If X is more than Y, return True. Else, return False.
+  "islesser": function_islesser, # If X is less than Y, return True. Else, return False.
+  "if": function_if, # If the expression inside the brackets evaluates to True, run the code inside the brackets. Else, don't.
 
   # Loop functions
-  "while": function_while,
-  "fornumb": function_fornumb,
-  "break": function_break,
+  "while": function_while, # Loops the code until the expression inside of the brackets evaluates to False.
+  "fornumb": function_fornumb, # Loops the code inside the brackets for N amount of times, and assigns a variable to an incrementing value each loop.
+  "break": function_break, # Breaks out of the highest level loop.
 
   # Boolean functions
-  "not": function_not,
-  "and": function_and,
-  "or": function_or,
-  "xor": function_xor,
+  "not": function_not, # Returns the not of a boolean
+  "and": function_and, # Returns the and of two booleans
+  "or": function_or, # Returns the or of two booleans
+  "xor": function_xor, # Returns the xor of two booleans
 
   # String functions
-  "join": function_join,
-  "remove": functions_remove,
-  "shuffle": function_shuffle,
-  "slice": function_slice,
-  "gtchar": function_getchar,
-  "rpchar": function_repchar,
+  "join": function_join, # Joins two strings together.
+  "remove": functions_remove, # Removes a substring from a string.
+  "shuffle": function_shuffle, # Shuffles a string
+  "slice": function_slice, # Slices a string, similar to python's built-in slicing
+  "gtchar": function_getchar, # Gets a character from a string
+  "rpchar": function_repchar, # Replaces a character from a string and returns that value
 
   # arithmetic functions
-  "add": function_add,
-  "subtr": function_subtr,
-  "multi": function_multi,
-  "divi": function_divi,
-  "mod": function_mod,
-  "pow": function_pow,
-  "sqrt": function_sqrt,
+  "add": function_add, # Returns X + N
+  "subtr": function_subtr, # Returns X - N
+  "multi": function_multi, # Returns X * N
+  "divi": function_divi, # Returns X // N
+  "mod": function_mod, # Returns X % N
+  "pow": function_pow, # Returns X ^ N
+  "sqrt": function_sqrt, # Returns the (rounded (i should probably change that)) square root of N
 
   # python module stuf
-  "sleep": function_sleep,
-  "msleep": function_msleep,
-  "datetime": function_datetime,
-  "timer": function_timer,
-  "randint": function_randint,
+  "sleep": function_sleep, # Sleep for N seconds
+  "msleep": function_msleep, # Sleep for N milliseconds
+  "datetime": function_datetime, # Get the current date & time
+  "timer": function_timer, # Multiple timer-related functions
+  "randint": function_randint, # Get a random int between two numbers
 
   #other funcs
-  "println": function_println,
-  "exit": exit_program,
-  "throw": function_throw
+  "println": function_println, # Print with line
+  "printve": function_printve, # Print with a variable ending
+  "printnl": function_printnl, # Print without a line/ending
+  "exit": exit_program, # Exits the program with N as the exit code.
+  "throw": function_throw # Throws a custom error with N as the error code.
   }
 
   keyword: str = keyword_list[top_from_stack()]
