@@ -5,7 +5,7 @@ from math import pow, sqrt # For arethmetic functions
 from datetime import datetime # For the datetime function
 from random import sample, randint # For random functions
 from sys import setrecursionlimit # To make recursion in Ether easier without throwing an error
-from tkinter import filedialog as fd # For the user to input a specific file using the file dialog.
+# from tkinter import filedialog as fd # For the user to input a specific file using the file dialog.
 
 
 global Keyword_key, keyword_list, Variable_list, Variable_dict, Def_function_list, Def_function_dict, temp_val, i, config_file, loop_break, _timer
@@ -44,7 +44,7 @@ Please create a file named "config.json" in the "Ether interpreter" directory.
 {"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}
 should be inside the file.
 Using a default config file.""")
-    config_file = '{"Debug":0, "File_picker":1, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
+    config_file = '{"Debug":0, "File_picker":0, "Default_file":"Test_program.etr", "Announce_comments":0, "Error_length":10}'
 
   config_file = loads(config_file) # Turns json file into python dictionary
   if config_file["Debug"] == 1:
@@ -120,7 +120,7 @@ def parser_let() -> None:
       keyword_list.append("=")
       i += 1
 
-def keyword_parser() -> list[str]:
+def keyword_parser() -> list:
   """Parses the input file for keywords, returning a list of keywords."""
   global temp_val, i, keyword_list, file
   i = -1
@@ -313,7 +313,7 @@ def get_current_kword(index: int = None) -> str:
   return keyword_list[index]
 
 
-def get_current_line(index: int = None, get_chars: bool = False) -> Union[int, tuple[int, int]]:
+def get_current_line(index: int = None, get_chars: bool = False) -> object:
   """Used for error messages, gets the line currently being executed."""
   global keyword_list
   if index is None:
@@ -336,7 +336,7 @@ def get_current_line(index: int = None, get_chars: bool = False) -> Union[int, t
 
 def value_parser(string: bool = False,
                 integer: bool = False,
-                boolean: bool = False) -> tuple[str, str]:
+                boolean: bool = False) -> tuple:
   """Parses through keyword_list to find a value of type string, integer, or boolean.
   The return tuple is formatted like this:
   (Value, Type)"""
@@ -439,7 +439,7 @@ def function_increment(var_name) -> str:
   Variable_dict[var_name] = (str(var), "Integer")
   return str(var)
 
-def function_stuff() -> tuple[str, str]:
+def function_stuff() -> tuple:
   func_name = keyword_list[top_from_stack()]
 
   check_for_kword("(")
@@ -532,7 +532,7 @@ def function_define_func() -> None:
       curly_braces -= 1
 
 
-def function_integer() -> tuple[str, str]:
+def function_integer() -> tuple:
   check_for_kword("(")
   value, val_type = value_parser(string=True, integer=True, boolean=True)
   check_for_kword(")")
@@ -551,7 +551,7 @@ def function_integer() -> tuple[str, str]:
     return (value, "Integer")
 
 
-def function_string() -> tuple[str, str]:
+def function_string() -> tuple:
   check_for_kword("(")
   value = value_parser(string=True, integer=True, boolean=True)[0]
   check_for_kword(")")
@@ -559,7 +559,7 @@ def function_string() -> tuple[str, str]:
   return (value, "String")
 
 
-def function_boolean() -> tuple[str, str]:
+def function_boolean() -> tuple:
   check_for_kword("(")
   value, val_type = value_parser(string=True, integer=True, boolean=True)
   check_for_kword(")")
@@ -1011,7 +1011,7 @@ def function_datetime() -> str:
   return str(datetime.now())
 
 
-def function_randint() -> tuple[str, str]:
+def function_randint() -> tuple:
   check_for_kword("(")
   floor = int(value_parser(string=False, integer=True, boolean=False)[0])
   check_for_kword(",")
