@@ -4,17 +4,23 @@ let: QsString = ""
 let: QsReturn = ""
 let: QsIsChar = False
 let: QsLeftOfMiddle = ""
-let: QsMiddle = ""
+let: QsPivot = ""
 let: QsRightOfMiddle = ""
-define quick_sort args("QsString") -> string: {
-  QsIsChar = isequal(len(QsString), 1)
+define quickSort args("QsString") -> string: {
+  QsIsChar = isequal(integer(len(QsString)), 1)
   if(QsIsChar): {
     QsReturn = QsString
   } if(not(QsIsChar)): {
-    
-    QsLeftOfMiddle = 
-    QsMiddle = 
-    QsReturn = join(join(QsLeftOfMiddle, QsMiddle), QsRightOfMiddle)
+
+    QsPivot = gtchar(QsString, divi(len(QsString), 2))
+
+
+    QsLeftOfMiddle = "z"
+    QsRightOfMiddle = "a"
+    fornumb
+    QsReturn = join(join(quickSort(QsLeftOfMiddle), QsPivot), QsRightOfMiddle)
   }
   return QsReturn
 }
+
+println(quickSort("a"))
