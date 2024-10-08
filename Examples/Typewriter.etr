@@ -1,0 +1,11 @@
+let: TwString = ""
+let: TwDelayMs = 0
+let: TwIndex = 0
+define typewriter args("TwString", "TwDelayMs") -> none: {
+  fornumb(len(TwString), "TwIndex"): {
+    printnl(gtchar(TwString, TwIndex))
+    sleepms(TwDelayMs)
+  }
+}
+
+typewriter("This is a pretty epic sauce test!!", 50)
