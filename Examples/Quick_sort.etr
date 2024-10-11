@@ -1,40 +1,21 @@
-# Example of a quick sort algorithm, using recursion.
-
 let: QsString = ""
 let: QsReturn = ""
-let: QsIsChar = False
 let: QsPivot = ""
-let: QsNoPivotString = ""
-let: QsLeftOfMiddle = ""
-let: QsRightOfMiddle = ""
-let: QsIndex = 0
-let: QsCurrentChar = ""
+let: QsIsChar = False
+let: QsMiddleIndex = 0
+let: QsStrIndex = 0
 define quickSort args("QsString") -> string: {
-  QsIsChar = isequal(integer(len(QsString)), 1)
-  if(QsIsChar): {
-    QsReturn = QsString
-  } if(not(QsIsChar)): {
-    
-    QsPivot = gtchar(QsString, divi(len(QsString), 2))
-    
-    QsNoPivotString = repchar("", divi(len(QsString), 2))
-    QsLeftOfMiddle = ""
-    QsRightOfMiddle = ""
-    fornumb(len(QsNoPivotString), "QsIndex"): {
-      QsCurrentChar = gtchar(QsNoPivotString, QsIndex)
-      if(islesser(QsCurrentChar, QsPivot)): {
-        QsLeftOfMiddle = join(QsLeftOfMiddle, QsCurrentChar)
-      } if(or(isequal(QsCurrentChar, QsPivot), isgreater(QsCurrentChar, QsPivot))): {
-        QsRightOfMiddle = join(QsRightOfMiddle, QsCurrentChar)
-      }
+    QsIsChar = islesser(len(QsString), 2)
+    if(QsIsChar): {
+        QsReturn = QsString
+    } if(not(QsIsChar)): {
+        QsMiddleIndex = divi(subtr(len(QsString), 1) 2)
+        println(QsMiddleIndex)
+        QsPivot = gtchar(QsString, QsMiddleIndex)
+        println(QsPivot)
+        # fornumb()
     }
-    QsReturn = join(join("L", QsPivot), "R")
-    QsReturn = rpchar(QsReturn, 0, quicksort(QsLeftOfMiddle))
-    QsReturn = rpchar(QsReturn, subtr(len(QsReturn), 1), quicksort(QsRightOfMiddle))
-  }
-  return QsReturn
+    return QsReturn
 }
 
-println(quickSort("a"))
-
-println(quicksort("asdgf"))
+println(quickSort("af"))
