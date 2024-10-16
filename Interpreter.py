@@ -17,7 +17,7 @@ def config_stuff() -> None:
   setrecursionlimit(100_000)  # Set the recursion limit to 100k; so recursion is easier to make without throwing an error
 
   Keyword_key = ["(", ")", "{", "}", ":", ";", ",", ".", " ", "'", "\"", "\n", "#", "=", "++", "--", "True", "False", # symbols
-                   "println", "printvl", "printnl", "exit", "throw", "let:", "input", "type", "integer", "string",
+                   "println", "printve", "printnl", "exit", "throw", "let:", "input", "type", "integer", "string",
                    "boolean", "none", "len",  # variable stuf / other stuf
                    "define", "->", "return", "args",  # function stuf
                    "if", "while", "fornumb", "break", "isequal", "isgreater", "islesser",  # loops and logic stuf
