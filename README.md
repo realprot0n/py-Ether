@@ -99,6 +99,16 @@ my own programming language!! :D
 ### Shuffle(x)
 * Returns the shuffled version of X.
 * x = A value of any type.
+### gtchar(x, y)
+* Returns the Yth character of X.
+	* (Zero-indexed)
+* X = Value of type string.
+* Y = Value of type integer.
+### rpchar(x, y, z)
+* Replaces the Yth character of X with Z.
+	* (Zero-indexed)
+* X & Z = Values of type string
+* Y = value of type integer.
 ### Remove
 #### Remove.substring(x, y)
 * Removes Y from X, and returns the result.
