@@ -17,7 +17,7 @@ my own programming language!! :D
 	* Prints the whole Config.json file to the console upon loading it.
 	* Prints the program file's contents to the console upon loading.
 	* Prints the length of the file to the console.
-  * Prints the amount of time it took for the file to be parsed for keywords.
+	* Prints the amount of time it took for the file to be parsed for keywords.
 	* Denotes when no errors occurred while parsing the file.
 	* Shows the list of keywords after the file has been parsed.
  	* Prints to the console when `exit()` is used.
@@ -48,6 +48,9 @@ my own programming language!! :D
 ### Printnl(n)
 * Prints n to the console, without a new line.
 * n = A value of any type.
+### Printvl(n, x)
+* Prints n to the console, with x as the value at the end.
+* n & x = Values of any type 
 ### Input(x)
 * Asks the user for an input, then returns that input.
 * Uses X as the stem when asking for the input.
@@ -77,10 +80,10 @@ my own programming language!! :D
 * X = a variable of any type.
 ### var++
 * Increments var by one.
-* Faster than saying `i = add(i, 1)`
+* Faster when parsing than saying `i = add(i, 1)`
 ### var--
 * Decrements var by one.
-* Faster than saying `i = subtr(i, 1)`
+* Faster when parsing than saying `i = subtr(i, 1)`
 
 ## String functions
 ### Join(x, y)
