@@ -80,10 +80,10 @@ my own programming language!! :D
 * X = a variable of any type.
 ### var++
 * Increments var by one.
-* Faster when parsing than saying `i = add(i, 1)`
+* Faster when interpreting than saying `i = add(i, 1)`
 ### var--
 * Decrements var by one.
-* Faster when parsing than saying `i = subtr(i, 1)`
+* Faster when interpreting than saying `i = subtr(i, 1)`
 
 ## String functions
 ### Join(x, y)
