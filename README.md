@@ -1,5 +1,7 @@
 # Ether Documentation
-my own programming language!! :D
+The most epic sauce programming language ever!!! :3
+
+**If you find bugs, create an issue!**
 
 ## Common formatting / Notes
 * Functions, such as `println(n)`, will have parenthesis around arguments.
@@ -33,8 +35,8 @@ my own programming language!! :D
 
 ## # Comments
 * Starts with a hashtag.
-* Can end with either a new line or another hashtag, whichever comes first.
-* Comments can also go at the end of a file, even without a trailing hashtag or new line.
+* Ends with a new line.
+* Comments can also go at the end of a file, even without a trailing new line.
 * If the "Announce_comments" value of Config.json is set to "1", they will be announced when passed over.
 
 ## Console functions
@@ -49,7 +51,7 @@ my own programming language!! :D
 * Prints n to the console, without a new line.
 * n = A value of any type.
 ### Printvl(n, x)
-* Prints n to the console, with x as the value at the end.
+* Prints n to the console, with x as the ending.
 * n & x = Values of any type 
 ### Input(x)
 * Asks the user for an input, then returns that input.
@@ -208,7 +210,7 @@ my own programming language!! :D
 	* Input variables NEED to be defined before creating the function.
 * Returns a value if `-> {type}` is included, otherwise it returns none.
 * When called, the code inside the brackets will be run.
-	* This example is called with the format `foo("bar", "baz")`
+	* This example is called with the format `foo("argument 1", "argument 2")`
 ### Return x
 * Only used inside of functions.
 * Returns X out of the function.
