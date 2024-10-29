@@ -18,6 +18,7 @@ define print_cool args("in", "replacement") -> none: {
 
     println(in)
   }
+  return
 }
 
 print_cool("test", "_")
