@@ -1,4 +1,4 @@
-let: user_input = int(input("What number do you want to find the sum of?"))
+let: user_input = integer(input("What number do you want to find the sum of?"))
 
 let: result = multi(user_input, add(user_input, 1))
 result = divi(result, 2)
