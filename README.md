@@ -17,7 +17,7 @@ The most epic sauce programming language ever!!! :3
 * Enables multiple functionalities meant for debugging purposes.
 * If the value of "Debug" is set to 1, the interpreter does the following:
 	* Prints the whole Config.json file to the console upon loading it.
-	* Prints the program file's contents to the console upon loading.
+	* Prints the program file's contents to the console upon loading it.
 	* Prints the length of the file to the console.
 	* Prints the amount of time it took for the file to be parsed for keywords.
 	* Denotes when no errors occurred while parsing the file.
@@ -68,12 +68,14 @@ The most epic sauce programming language ever!!! :3
 * n = A value of any type.
 * Spaces are optional.
 * Variable reassignments don't need the "Let:" keyword
-	* `let: x = 7`
-	* `let: y = x`
-	* `x = 3`
-	* `y = add(x, y)`
-	* `print(y) # 10`
-	* This is valid code.
+* Example:
+```Ether
+let: x = 7
+let: y = x
+x = 3
+y = add(x, y)
+print(y) # 10
+```
 ### Type(x)
 * Returns the type of X.
 * X = a variable of any type
@@ -135,6 +137,18 @@ The most epic sauce programming language ever!!! :3
 * Spaces are optional
 
 ## Arithmetic functions
+### eval(n)
+* Evaluates the mathematical expression inside and returns the result.
+* To use variables, use curly braces with the variable name inside, like `{index}`.
+* Supported symbols:
+  * `+` - Addition
+  * `-` - Subtraction
+  * `*` - Multiplication
+  * `/` - Division
+  * `%` - Modulus
+  * `^` - Exponentiation
+  * `()` - Parenthesis
+  * `{}` - Variable usage
 ### add(x, y)
 * Adds X & Y, and returns the result.
 * X & Y = values of type integer.
@@ -192,7 +206,7 @@ The most epic sauce programming language ever!!! :3
 * Condition checks are only made when the closing bracket is reached.
 * If X is false on the first check, no code inside the brackets will be ran.
 * X = A value of type boolean.
-* **WARNING:** Using this can lead to an infinite loop, only able to be broken out of with KeyboardInterrupt (Ctrl + C).
+* **WARNING:** Using this can lead to an infinite loop, only able to be broken out of with Ctrl + C.
 * Spaces are optional.
 ### Fornumb(x): {}
 * Repeats code inside the brackets X amount of times
@@ -208,13 +222,36 @@ The most epic sauce programming language ever!!! :3
 * Defines a function with the name foo.
 * Foo will take in two values as its inputs, bar and baz.
 	* Input variables NEED to be defined before creating the function.
+  * Input variables also need to be defined as a string in the function definition. (fix this later)
 * Returns a value if `-> {type}` is included, otherwise it returns none.
 * When called, the code inside the brackets will be run.
 	* This example is called with the format `foo("argument 1", "argument 2")`
 ### Return x
 * Only used inside of functions.
 * Returns X out of the function.
-	* Unless there's no `-> type` included OR if `-> none` is included when defining the function
+	* Unless there's no `-> type` included OR if `-> none` is included when defining the function, then nothing should be included after it.
+* Is required for any function to return from itself properly without breaking.
+* Cannot be inside of a `while` or `for` loop, as it must be at the function's base level. (fix this later)
+  * You can get around this by using a variable to store the function's return value before actually returning.
+  * Example: (`rBoolean` is the return value)
+```Ether
+let: string = "";
+let: character = "";
+let: rBoolean = False;
+let: indexOfChar = 0;
+define isCharInString("string", "character") -> boolean: {
+  indexOfChar = subtr(0, 1);
+  rBoolean = False;
+  fornumb(len(string)): {
+    indexOfChar++
+    if(isequal(gtchar(indexOfCharacter, string), character): {
+      rBoolean = True;
+      break
+    }
+  }
+  return rBoolean
+}
+```
 
 ## Other functions
 ### Sleep(n)
