@@ -1,0 +1,13 @@
+let: numb = 0;
+let: product = 0;
+let: i = 0;
+define factorial args("numb") -> integer: {
+  product = 1
+
+  fornumb(numb, "i") {
+    product = multi(product, i)
+  }
+  return product
+}
+
+print(factorial(10))
